@@ -8,6 +8,6 @@
 # Part 1: Load Packages --------------------------------------------------
 
 # Load packages
-packages <- c("tidyverse")
+packages <- c("tidyverse", "mgcv")
 
 pacman::p_load(packages, character.only = TRUE); rm(packages)
