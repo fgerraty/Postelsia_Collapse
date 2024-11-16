@@ -2,7 +2,7 @@
 # Postelsia Project ######################################################
 # Author: Frankie Gerraty (frankiegerraty@gmail.com; fgerraty@ucsc.edu) ##
 ##########################################################################
-# Script XX: Data Exploration ############################################
+# Script XX: Postelsia Data Exploration ##################################
 #-------------------------------------------------------------------------
 
 postelsia_raw <- read_csv("data/raw/postelsia_counts_2024Nov1.csv")
@@ -20,29 +20,65 @@ postelsia_summary <- postelsia_raw %>%
 #         marine_common_year = factor(marine_common_year),
          season_name = factor(season_name), 
          plot_code = factor(plot_code))
+  
+  
+#Make dataframe for postelsia plot
 
-
-temp <- postelsia_summary %>% 
-  group_by(marine_site_name, marine_common_year, season_name) %>% 
-  summarise(n_plots = length(unique(plot_code)))
+postelsia_summary_plot_df <- postelsia_summary %>% 
+  filter(season_name %in% (c("Spring", "Summer")))
   
 
-  
- 
-unique(postelsia_summary$marine_site_name)
-
 temp <- postelsia_summary %>% 
-  group_by(marine_common_year) %>% 
-  summarize(site_count = length(unique(marine_site_name))) 
+  group_by(marine_site_name, season_name) %>% 
+  summarise(n_year = length(unique(marine_common_year)))
 
+#Check out seasonal differences in sampling at Point Sierra Nevada 
+psn <- postelsia_summary %>% 
+  filter(marine_site_name == "Point Sierra Nevada", 
+         season_name == "Fall") #Can change this to "Fall"
 
-ggplot(postelsia_summary, aes(x=marine_common_year, y=density, color=season_name))+
+ggplot(psn,
+       aes(x=marine_common_year, y=density, color=season_name))+
   geom_point()+
-  geom_smooth()
+  geom_vline(xintercept = 2015)+
+  stat_smooth(#method = 'loess', 
+              color = "darkgreen")+
+  facet_wrap(facets = "marine_site_name", scales = "free_y")+
+  theme_few()
 
-#  geom_smooth()
-#  geom_bar(stat = "identity", position = "dodge")#+
-  facet_wrap(facets = "marine_site_name", scales = "free_y")
+
+#Check out seasonal differences in sampling at Scott Creek
+
+scott <- postelsia_summary %>% 
+  filter(marine_site_name == "Scott Creek") #Can change this to "Fall"
+
+
+ggplot(scott,
+       aes(x=marine_common_year, y=density, color=season_name))+
+  geom_point()+
+  geom_vline(xintercept = 2015)+
+#  stat_smooth(#method = 'loess', 
+    #color = "darkgreen"
+#    )+
+#  facet_wrap(facets = "marine_site_name", scales = "free_y")+
+  theme_few()
+
+
+
+
+
+
+
+
+
+ggplot(postelsia_summary_plot_df,
+       aes(x=marine_common_year, y=density))+
+  geom_point()+
+  geom_vline(xintercept = 2015)+
+  stat_smooth(method = 'loess', color = "darkgreen")+
+  facet_wrap(facets = "marine_site_name", scales = "free_y")+
+  theme_few()
+  
 
 
 
