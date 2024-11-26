@@ -1,12 +1,35 @@
 stars_raw <- read_csv("data/raw/seastarkat_size_count_zeroes_totals.csv")
 
 stars <- stars_raw %>% 
+  #Filter for only postelsia sites
   filter(site_code %in% c("FOG", "SHT", "SEA", "BML", "SCT","PSN")) %>% 
-  filter(species_code=="PISOCH") 
+  #Filter for only Pisaster ochraceus
+  filter(species_code=="PISOCH") %>% 
+  #Filter for surveys after 2004
+  filter(marine_common_year >= 2004) %>% 
+  #Remove rows with blank star counts
+  drop_na(size_bin) %>% 
+  filter(size_bin != "NM") %>% 
+  #Make columns numeric
+  mutate(size_bin = as.numeric(size_bin))%>% 
+  #Calculate pisaster biomass using equation from Moritsch and Raimondi (2018) 
+  #(https://doi.org/10.1002/ece3.3953)
+  mutate(pisaster_biomass = total * exp(log(size_bin)*2.34723-5.50262))
 
 
-ggplot(stars, aes(x=size_bin, y=total))+
-  geom_bar(stat = "identity")+
-  facet_wrap(facets = "marine_common_year",
-             scales = "free_y")
+stars_summary <- stars %>% 
+  group_by(marine_site_name, marine_common_year, marine_common_season) %>% 
+  summarise(sum_pisaster_biomass = sum(pisaster_biomass)) %>% 
+  mutate(survey_id = paste(marine_site_name,
+                           marine_common_season, 
+                           sep = "_"))
+
+
+
+ggplot(stars_summary, aes(x=marine_common_year, y=sum_pisaster_biomass))+
+  geom_point()+
+  geom_smooth()+
+  facet_wrap(facets = "marine_site_name",
+             scales = "free_y")+
+  theme_few()
 
