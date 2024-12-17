@@ -6,3 +6,5 @@
 .quarto
 
 temp/*
+data/raw/*
+scripts/0.5_Data_Clean.R
