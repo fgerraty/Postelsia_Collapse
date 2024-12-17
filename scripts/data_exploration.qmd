@@ -1,5 +1,5 @@
 ---
-title: "data_exploration"
+title: "Postelsia + Heatwave Data Exploration"
 format:
   html:
     code-fold: true
@@ -11,9 +11,33 @@ editor: visual
 knitr::opts_knit$set(root.dir = "/Volumes/GERRATY/Postelsia_Collapse")
 ```
 
-## Postelsia + Heatwave Data Exploration
+In this document, we begin some preliminary investigation of datasets that we can leverage to explore the impact of the 2014-2016 marine heatwave on *Postelsia palmaeformis.* Here, we do some data exploration + visualization to help guide project development.
 
-In this document, we begin some preliminary investigation of datasets that we can leverage to explore the impact of the 2014-2016 marine heatwave on *Postelsia palmaeformis*
+There are several datasets we can draw from for the project, and perhaps we can start by discussing the benefits and drawbacks of each:
+
+**Postelsia Data**
+
+-   Postelsia plots (high coverage of sites/years, lots of signal)
+
+-   Repeat photos (low coverage, can be directly linked with mussel data from the same photos)
+
+-   Biodiversity surveys (not the best, I understand, but I don't know these datasets well)
+
+**Mussel Data**
+
+-   Repeat photos (low coverage, but can be directly linked with postelsia data from the same photos)
+
+-   Biodiversity surveys (low annual coverage, need to check to be sure sites have been surveyed somewhat consistently pre-post heatwave)
+
+-   Targeted assemblage photo quads (?) - (not intended use, I understand)
+
+**Sea Star Data**
+
+-   Sea star plots (pretty solid, see visualizations and notes below)
+
+**Temperature Data**
+
+-   From HOBO loggers (water temp) and/or weather stations (air temp). Do we need? Let's discuss.
 
 ```{r}
 
@@ -217,4 +241,4 @@ Note that we do not have star data from Sandhill Bluff.
 
 ------------------------------------------------------------------------
 
-#### **Other data to draw from?** LMK! 
+#### **Other data to draw from?** LMK!
