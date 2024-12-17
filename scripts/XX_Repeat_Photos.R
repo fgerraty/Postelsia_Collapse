@@ -10,7 +10,7 @@ pct_cover_photos <- read_csv("data/raw/pct_cover_photos_raw.csv") %>%
 
 temp <- pct_cover_photos %>% 
         group_by(photo) %>% 
-        summarise(n = length(unique(year)))
+        summarise(n_years = length(unique(year)))
 
 
 
