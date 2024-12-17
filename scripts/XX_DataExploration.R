@@ -71,11 +71,16 @@ ggplot(scott,
 
 
 
-ggplot(postelsia_summary_plot_df,
-       aes(x=marine_common_year, y=density))+
+ggplot(postelsia_summary,
+       aes(x=marine_common_year, y=density, color = season_name))+
+  # Add semi-transparent red box spanning 2014-2016
+  annotate("rect", xmin = 2014, xmax = 2016, ymin = -Inf, ymax = Inf, 
+           fill = "red", alpha = 0.2) +
   geom_point()+
-  geom_vline(xintercept = 2015)+
-  stat_smooth(method = 'loess', color = "darkgreen")+
+#  geom_vline(xintercept = 2015)+
+#  stat_smooth(method = 'loess', color = "darkgreen")+
+  geom_smooth()+
+  
   facet_wrap(facets = "marine_site_name", scales = "free_y")+
   theme_few()
   
