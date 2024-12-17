@@ -33,14 +33,15 @@ temp <- postelsia_summary %>%
   summarise(n_year = length(unique(marine_common_year)))
 
 #Check out seasonal differences in sampling at Point Sierra Nevada 
-psn <- postelsia_summary %>% 
-  filter(marine_site_name == "Point Sierra Nevada", 
-         season_name == "Fall") #Can change this to "Fall"
+shelter_cove <- postelsia_summary %>% 
+  filter(marine_site_name == "Shelter Cove") %>%  #Can change this to "Fall"
+  group_by(marine_site_name, marine_common_year) %>% 
+  summarise(density_mean = mean(density))
 
-ggplot(psn,
-       aes(x=marine_common_year, y=density, color=season_name))+
+ggplot(shelter_cove,
+       aes(x=marine_common_year, y=density_mean))+
   geom_point()+
-  geom_vline(xintercept = 2015)+
+  geom_hline(yintercept = 0)+
   stat_smooth(#method = 'loess', 
               color = "darkgreen")+
   facet_wrap(facets = "marine_site_name", scales = "free_y")+
