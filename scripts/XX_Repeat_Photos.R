@@ -6,7 +6,8 @@
 #-------------------------------------------------------------------------
 
 pct_cover_photos <- read_csv("data/raw/pct_cover_photos_raw.csv") %>% 
-  mutate(photo = paste(marine_site_name, pan, sep = "_")) 
+  mutate(photo = paste(marine_site_name, pan, sep = "_")) %>% 
+  clean_names()
 
 temp <- pct_cover_photos %>% 
         group_by(photo) %>% 
@@ -14,9 +15,9 @@ temp <- pct_cover_photos %>%
 
 
 
-ggplot(pct_cover_photos, aes(x=year, y=pct_postelsia)) +
+ggplot(pct_cover_photos, aes(x=year, y=percent_postelsia)) +
   geom_point()+
-  geom_smooth()+
+  geom_smooth()#+
   facet_wrap(facets = "photo", scales = "free_y")
 
 

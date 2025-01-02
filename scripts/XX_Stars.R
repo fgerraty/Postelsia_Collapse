@@ -2,11 +2,11 @@ stars_raw <- read_csv("data/raw/seastarkat_size_count_zeroes_totals.csv")
 
 stars <- stars_raw %>% 
   #Filter for only postelsia sites
-  filter(site_code %in% c("FOG", "SHT", "SEA", "BML", "SCT","PSN")) %>% 
+  filter(site_code %in% c("SHT", "SEA", "BML", "SCT","PSN")) %>% 
   #Filter for only Pisaster ochraceus
   filter(species_code=="PISOCH") %>% 
   #Filter for surveys after 2004
-  filter(marine_common_year >= 2004) %>% 
+  filter(marine_common_year >= 2012) %>% 
   #Remove rows with blank star counts
   drop_na(size_bin) %>% 
   filter(size_bin != "NM") %>% 
@@ -19,10 +19,11 @@ stars <- stars_raw %>%
 
 stars_summary <- stars %>% 
   group_by(marine_site_name, marine_common_year, marine_common_season) %>% 
-  summarise(sum_pisaster_biomass_g = sum(pisaster_biomass_g)) %>% 
+  summarise(sum_pisaster_biomass_g = sum(pisaster_biomass_g), 
+            .groups = "drop") %>% 
   mutate(survey_id = paste(marine_site_name,
                            marine_common_season, 
-                           sep = "_"))
+                           sep = "_")) 
 
 
 
