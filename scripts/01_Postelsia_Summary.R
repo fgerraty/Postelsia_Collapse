@@ -10,7 +10,7 @@
 postelsia <- read_csv("data/processed/postelsia_plots.csv")
 
 
-# Part 2: Summarize Data -------------------------------------------------
+# Part 2: Clean and Summarize Data ---------------------------------------------
 
 postelsia_annual_summary <- postelsia %>% 
   #Combine plots at each given site (sum of area and of total counts)
@@ -24,8 +24,6 @@ postelsia_annual_summary <- postelsia %>%
     site_id %in% c(13:17) ~ season == "Spring")) %>% 
   #Determine pre-post MHW period 
   mutate(period = ifelse(year < 2015, "pre_MHW", "post_MHW")) 
-
-
 
 postelsia_summary <- postelsia_annual_summary%>% 
   #Summarise data before (all years up to and including 2014) vs after MHW (2015-onward)
@@ -81,7 +79,7 @@ postelsia_table
 gtsave(postelsia_table, "output/supplemental_figures/postelsia_summary_table.pdf")
 
 
-# Part X: Figure XA, bar plot of postelsia % change ------------------
+# Part X: Figure XA, bar plot of postelsia % change ----------------------------
 
 bar_plot <- ggplot(postelsia_summary, aes(x=site_id, y=percent_change, 
                                           fill = percent_change > 0))+
@@ -99,7 +97,6 @@ bar_plot <- ggplot(postelsia_summary, aes(x=site_id, y=percent_change,
         panel.border = element_rect(linewidth = 2))
 
 ggsave("output/extra_figures/map/bar_plot.png", bar_plot, width = 3, height = 6.4, units = "in", dpi = 600)
-
 
 # Part X: Supplemental Figure: % density change vs. sampling effort ------------
 
@@ -154,3 +151,26 @@ ggsave("output/extra_figures/density_vs_pre_years.png", density_vs_pre_years,
 ggsave("output/extra_figures/density_vs_post_years.png", density_vs_post_years, 
        width = 3.7, height = 2.5, units = "in", dpi = 600)
 
+
+# Part X: Annual Trends (All Sites) -------------------------------------------
+
+
+all_site_data <- ggplot(postelsia_annual_summary, aes(x=year, y=density))+
+  # Add semi-transparent red box spanning 2014-2016
+  annotate("rect", xmin = 2014, xmax = 2016, ymin = -Inf, ymax = Inf, 
+           fill = "red", alpha = 0.2) +
+  geom_point()+
+  scale_y_continuous(limits = c(0, NA))+
+  facet_wrap(facets = "site_id", scales = "free_y", ncol = 4)+
+  labs(y = expression(bold(P. ~ palmaeformis ~ density ~ (individuals / m^2))),
+       x = "Survey year")+
+  theme_few()+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1.1,hjust = 1),
+        panel.border = element_rect(linewidth = 1.2),
+        strip.text = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold"))
+
+ggsave("output/supplemental_figures/postelsia_all_sites.png", all_site_data, 
+       width = 8, height = 8, units = "in", dpi = 600)
+        
