@@ -1,0 +1,156 @@
+##########################################################################
+# Postelsia Project ######################################################
+# Author: Frankie Gerraty (frankiegerraty@gmail.com; fgerraty@ucsc.edu) ##
+##########################################################################
+# Script 01: Summarize + Visualize Postelsia Plot Data ###################
+#-------------------------------------------------------------------------
+
+# Part 1: Import Data ----------------------------------------------------
+
+postelsia <- read_csv("data/processed/postelsia_plots.csv")
+
+
+# Part 2: Summarize Data -------------------------------------------------
+
+postelsia_annual_summary <- postelsia %>% 
+  #Combine plots at each given site (sum of area and of total counts)
+  group_by(site_id, georegion, year, season) %>% 
+  summarise(total = sum(total), plot_area_m2 = sum(plot_area_m2), .groups = "drop") %>% 
+  #Calculate density of postelsia
+  mutate(density = total/plot_area_m2) %>% 
+  #Filter for "canonical season"
+  filter(case_when(
+    site_id %in% c(1:12) ~ season == "Summer",
+    site_id %in% c(13:17) ~ season == "Spring")) %>% 
+  #Determine pre-post MHW period 
+  mutate(period = ifelse(year < 2015, "pre_MHW", "post_MHW")) 
+
+
+
+postelsia_summary <- postelsia_annual_summary%>% 
+  #Summarise data before (all years up to and including 2014) vs after MHW (2015-onward)
+  group_by(site_id, georegion, period) %>% 
+  summarise(n_years = length(unique(year)),
+            mean_density = mean(density), 
+            se_density = sd(density)/sqrt(n()),
+            .groups = "drop") %>% 
+  #Bring data together in wide format
+  pivot_wider(
+    names_from = period, 
+    values_from = c(n_years, mean_density, se_density)) %>% 
+  #Calculate density change
+  mutate(density_change = mean_density_post_MHW - mean_density_pre_MHW,
+         percent_change = (density_change)/mean_density_pre_MHW*100,
+         n_years_post_MHW = replace_na(n_years_post_MHW, 0),
+         n_years_total = n_years_pre_MHW + n_years_post_MHW,
+         site_id = as.character(site_id),
+         site_id = factor(site_id, levels = rev(1:17)))
+
+
+# Part 3: Postelsia summary table for manuscript -------------------------------
+
+
+postelsia_table_gt <- postelsia_summary %>% 
+  mutate(pre_MHW_density = sprintf("%.2f (+/- %.2f)", mean_density_pre_MHW, se_density_pre_MHW),
+         post_MHW_density = sprintf("%.2f (+/- %.2f)", mean_density_post_MHW, se_density_post_MHW),
+         #Remove (+/- NA) wherever it appears
+         pre_MHW_density = gsub("\\(\\+/- NA\\)", "", pre_MHW_density),
+         post_MHW_density = gsub("\\(\\+/- NA\\)", "", post_MHW_density)) %>% 
+  select(site_id, georegion, n_years_total, 
+         n_years_pre_MHW,pre_MHW_density, 
+         n_years_post_MHW,post_MHW_density, percent_change) %>% 
+  gt()
+
+
+postelsia_table <- 
+  postelsia_table_gt |>
+  tab_header(
+    title = "Site-Level Summary of Postelsia Density Data"
+  ) |>
+  cols_label(site_id = md("**Site**"),
+             georegion = md("**Georegion**"),
+             n_years_total = md("**Total survey years**"),
+             n_years_pre_MHW = md("**# survey years pre-MHW**"),
+             n_years_post_MHW = md("**# survey years post-MHW**"),
+             pre_MHW_density = md("**Density pre-MHW (+/- SE)**"),
+             post_MHW_density = md("**Density post-MHW (+/- SE)**"),
+             percent_change = md("**Percent change in density**"))
+postelsia_table
+
+#Export high-quality table
+gtsave(postelsia_table, "output/supplemental_figures/postelsia_summary_table.pdf")
+
+
+# Part X: Figure XA, bar plot of postelsia % change ------------------
+
+bar_plot <- ggplot(postelsia_summary, aes(x=site_id, y=percent_change, 
+                                          fill = percent_change > 0))+
+  geom_bar(stat = "identity")+
+  geom_hline(yintercept = 0)+
+  scale_y_continuous(breaks = c(-100, -50, 0, 50))+
+  scale_fill_manual(
+    values = c("TRUE" = "#1F509A", "FALSE" = "#E38E49"))+
+  coord_flip(ylim = c(-100, 75))+
+  labs(x = "Site", 
+       y = "Percent change of\nP. palmaeformis density",
+       fill = "")+
+  theme_few()+
+  theme(legend.position = "none",
+        panel.border = element_rect(linewidth = 2))
+
+ggsave("output/extra_figures/map/bar_plot.png", bar_plot, width = 3, height = 6.4, units = "in", dpi = 600)
+
+
+# Part X: Supplemental Figure: % density change vs. sampling effort ------------
+
+
+# Plot percent change of postelsia density against total number of survey years
+density_vs_all_years <- ggplot(postelsia_summary, aes(x=n_years_total, y=percent_change,
+                               color = percent_change > 0))+
+  geom_hline(yintercept = 0, color = "grey60", linewidth = 1.5)+
+  geom_point(size = 3)+
+  scale_color_manual(
+    values = c("TRUE" = "#1F509A", "FALSE" = "#E38E49"))+
+  scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous(limits = c(-100,100))+
+  labs(y = "Percent change of\nP. palmaeformis density", x = "Total number of survey years")+
+  theme_few()+
+  theme(panel.border = element_rect(linewidth = 2),
+        legend.position = "none")
+  
+# Plot percent change of postelsia density against number of survey years pre-MHW
+density_vs_pre_years <- ggplot(postelsia_summary, aes(x=n_years_pre_MHW, y=percent_change,
+                               color = percent_change > 0))+
+  geom_hline(yintercept = 0, color = "grey60", linewidth = 1.5)+
+  geom_point(size = 3)+
+  scale_color_manual(
+    values = c("TRUE" = "#1F509A", "FALSE" = "#E38E49"))+
+  scale_x_continuous(limits = c(0,16))+
+  scale_y_continuous(limits = c(-100,100))+
+  labs(y = "Percent change of\nP. palmaeformis density", x = "Number of survey years pre-MHW")+
+  theme_few()+
+  theme(panel.border = element_rect(linewidth = 2),
+        legend.position = "none")
+  
+# Plot percent change of postelsia density against number of survey years post-MHW
+density_vs_post_years <- ggplot(postelsia_summary, aes(x=n_years_post_MHW, y=percent_change,
+                               color = percent_change > 0))+
+  geom_hline(yintercept = 0, color = "grey60", linewidth = 1.5)+
+  geom_point(size = 3)+
+  scale_color_manual(
+    values = c("TRUE" = "#1F509A", "FALSE" = "#E38E49"))+
+  scale_x_continuous(limits = c(0,11))+
+  scale_y_continuous(limits = c(-100,100))+
+  labs(y = "", x = "Number of survey years post-MHW")+
+  theme_few()+
+  theme(panel.border = element_rect(linewidth = 2),
+        legend.position = "none")
+
+#Export plots
+ggsave("output/extra_figures/density_vs_all_years.png", density_vs_all_years, 
+       width = 7, height = 3.5, units = "in", dpi = 600)
+ggsave("output/extra_figures/density_vs_pre_years.png", density_vs_pre_years, 
+       width = 3.7, height = 2.5, units = "in", dpi = 600)
+ggsave("output/extra_figures/density_vs_post_years.png", density_vs_post_years, 
+       width = 3.7, height = 2.5, units = "in", dpi = 600)
+
