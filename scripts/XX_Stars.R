@@ -1,39 +1,56 @@
-stars_raw <- read_csv("data/raw/seastarkat_size_count_zeroes_totals.csv")
+##########################################################################
+# Postelsia Project ######################################################
+# Author: Frankie Gerraty (frankiegerraty@gmail.com; fgerraty@ucsc.edu) ##
+##########################################################################
+# Script X: Stars Data ###################################################
+#-------------------------------------------------------------------------
 
-stars <- stars_raw %>% 
-  #Filter for only postelsia sites
-  filter(site_code %in% c("SHT", "SEA", "BML", "SCT","PSN")) %>% 
-  #Filter for only Pisaster ochraceus
-  filter(species_code=="PISOCH") %>% 
-  #Filter for surveys after 2004
-  filter(marine_common_year >= 2012) %>% 
-  #Remove rows with blank star counts
-  drop_na(size_bin) %>% 
-  filter(size_bin != "NM") %>% 
-  #Make columns numeric
-  mutate(size_bin = as.numeric(size_bin))%>% 
-  #Calculate pisaster biomass using equation from Moritsch and Raimondi (2018) 
-  #(https://doi.org/10.1002/ece3.3953)
-  mutate(pisaster_biomass_g = total * exp(log(size_bin)*2.34723-5.50262))
+# Part 1: Import Data ----------------------------------------------------
+stars <- read_csv("data/processed/stars.csv")
 
 
+# Part 2: Clean and Summarize Data ---------------------------------------------
 stars_summary <- stars %>% 
-  group_by(marine_site_name, marine_common_year, marine_common_season) %>% 
+  group_by(site_id, year, season) %>% 
   summarise(sum_pisaster_biomass_g = sum(pisaster_biomass_g), 
             .groups = "drop") %>% 
-  mutate(survey_id = paste(marine_site_name,
-                           marine_common_season, 
-                           sep = "_")) 
+  group_by(site_id) %>%
+  mutate(percent_of_max = (sum_pisaster_biomass_g / max(sum_pisaster_biomass_g, na.rm = TRUE)) * 100) %>%
+  ungroup()
 
 
+# Part X: Annual Trends (All Sites) -------------------------------------------
 
-ggplot(stars_summary, aes(x=marine_common_year, y=sum_pisaster_biomass_g))+
+ggplot(stars_summary, aes(x=year, y=sum_pisaster_biomass_g))+
   annotate("rect", xmin = 2014, xmax = 2016, ymin = -Inf, ymax = Inf, 
            fill = "red", alpha = 0.2) +
   geom_point()+
-  geom_smooth()+
-  facet_wrap(facets = "marine_site_name",
+  facet_wrap(facets = "site_id",
              scales = "free_y"
            )+
-  theme_few()
+  scale_y_continuous(limits = c(0, NA))+
+  labs(y = expression(bold(P. ~ ochraceous ~ biomass ~ (kg))),
+       x = "Survey year")+
+  theme_few()+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1.1,hjust = 1),
+        panel.border = element_rect(linewidth = 1.2),
+        strip.text = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold"))
+
+
+# Part X: Single summary plot -------------------------------------------
+ggplot(stars_summary, aes(x=year, y=percent_of_max))+
+  annotate("rect", xmin = 2014, xmax = 2016, ymin = -Inf, ymax = Inf, 
+           fill = "red", alpha = 0.2) +
+  geom_point(size = 3, alpha = .5, color = "purple3")+
+  geom_smooth(color = "purple3", fill = "purple1")+
+  labs(y = "P. ochraceous biomass (% of maximum)",
+       x = "Survey year")+
+  theme_few()+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1.1,hjust = 1),
+        panel.border = element_rect(linewidth = 2),
+        strip.text = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold")) 
 

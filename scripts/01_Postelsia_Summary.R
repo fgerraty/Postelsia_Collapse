@@ -23,7 +23,10 @@ postelsia_annual_summary <- postelsia %>%
     site_id %in% c(1:12) ~ season == "Summer",
     site_id %in% c(13:17) ~ season == "Spring")) %>% 
   #Determine pre-post MHW period 
-  mutate(period = ifelse(year < 2015, "pre_MHW", "post_MHW")) 
+  mutate(period = ifelse(year < 2015, "pre_MHW", "post_MHW")) %>% 
+  group_by(site_id) %>%
+  mutate(percent_of_max = (density / max(density, na.rm = TRUE)) * 100) %>%
+  ungroup()
 
 postelsia_summary <- postelsia_annual_summary%>% 
   #Summarise data before (all years up to and including 2014) vs after MHW (2015-onward)
@@ -160,8 +163,8 @@ all_site_data <- ggplot(postelsia_annual_summary, aes(x=year, y=density))+
   annotate("rect", xmin = 2014, xmax = 2016, ymin = -Inf, ymax = Inf, 
            fill = "red", alpha = 0.2) +
   geom_point()+
-  scale_y_continuous(limits = c(0, NA))+
   facet_wrap(facets = "site_id", scales = "free_y", ncol = 4)+
+  scale_y_continuous(limits = c(0, NA))+
   labs(y = expression(bold(P. ~ palmaeformis ~ density ~ (individuals / m^2))),
        x = "Survey year")+
   theme_few()+
@@ -174,3 +177,20 @@ all_site_data <- ggplot(postelsia_annual_summary, aes(x=year, y=density))+
 ggsave("output/supplemental_figures/postelsia_all_sites.png", all_site_data, 
        width = 8, height = 8, units = "in", dpi = 600)
         
+
+# Part X: Single Summary Plot -------------------------------------------------
+
+ggplot(postelsia_annual_summary, aes(x=year, y=percent_of_max))+
+  annotate("rect", xmin = 2014, xmax = 2016, ymin = -Inf, ymax = Inf, 
+           fill = "red", alpha = 0.2) +
+  geom_point(size = 3, alpha = .5, color = "olivedrab4")+
+  geom_smooth(color = "olivedrab4", fill = "olivedrab4")+
+  labs(y = "P. palmaeformis density (% of maximum)",
+       x = "Survey year")+
+  theme_few()+
+#  coord_cartesian(xlim = c(2012, 2024))+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1.1,hjust = 1),
+        panel.border = element_rect(linewidth = 2),
+        strip.text = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold")) 
