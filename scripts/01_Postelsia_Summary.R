@@ -186,7 +186,7 @@ ggplot(postelsia_annual_summary, aes(x=year, y=percent_of_max))+
   geom_point(size = 3, alpha = .5, color = "olivedrab4")+
   geom_smooth(color = "olivedrab4", fill = "olivedrab4")+
   labs(y = "P. palmaeformis density (% of maximum)",
-       x = "Survey year")+
+       x = "Year")+
   theme_few()+
 #  coord_cartesian(xlim = c(2012, 2024))+
   theme(axis.text.x = element_text(angle = 45, vjust = 1.1,hjust = 1),
