@@ -5,7 +5,9 @@
 # Script XX: Repeat Photo Analyses #######################################
 #-------------------------------------------------------------------------
 
-panoramic_photos <- read_csv("data/processed/panoramic_photos.csv") %>% 
+panoramic_photos <- read_csv("data/processed/panoramic_photos.csv")
+
+panoramic_photos_long <- panoramic_photos %>% 
   mutate(photo_id = paste(site_id, pan, sep = "_")) %>% 
   #rename columns
   rename(postelsia = percent_postelsia, mussel = percent_mussel) %>% 
@@ -23,7 +25,7 @@ panoramic_photos <- read_csv("data/processed/panoramic_photos.csv") %>%
 #All sites summary plot #######
 ###############################
 
-photo_summary <- ggplot(panoramic_photos, aes(x=year, y=percent_of_max, 
+photo_summary <- ggplot(panoramic_photos_long, aes(x=year, y=percent_of_max, 
                                               color = species, fill = species)) +
   # Add semi-transparent red box spanning 2014-2016
   annotate("rect", xmin = 2014, xmax = 2016, ymin = -Inf, ymax = Inf, 
@@ -48,5 +50,4 @@ photo_summary <- ggplot(panoramic_photos, aes(x=year, y=percent_of_max,
 
 ggsave("output/extra_figures/photo_summary.png", photo_summary, 
        width = 6, height = 6, units = "in", dpi = 600)
- 
 
