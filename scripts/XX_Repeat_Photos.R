@@ -9,10 +9,7 @@ panoramic_photos <- read_csv("data/processed/panoramic_photos.csv") %>%
   mutate(period = case_when(year < 2014 ~ "pre_MHW", 
                             year >= 2014 & year <= 2016 ~ "MHW",
                             year > 2016 ~ "post_MHW"),
-         period = factor(period, levels = c("pre_MHW", "MHW", "post_MHW"))) %>% 
-  group_by(site_id, pan) %>% 
-  mutate(percent_of_max_postelsia = (percent_postelsia /  max(percent_postelsia, na.rm = TRUE)) * 100,
-         percent_of_max_mussel = (percent_mussel / max(percent_mussel))*100) 
+         period = factor(period, levels = c("pre_MHW", "MHW", "post_MHW"))) 
   
 
 
@@ -75,7 +72,7 @@ mean_plot_df <- panoramic_photos %>%
             mean_mussel = mean(percent_mussel))
 
 
-ggplot(panoramic_photos, aes(x=percent_mussel, y=percent_postelsia, 
+mussel_postelsia_plot <- ggplot(panoramic_photos, aes(x=percent_mussel, y=percent_postelsia, 
                                                    color = period)) +
   #Add points
   geom_point(size = 3, alpha = .5)+
@@ -98,5 +95,6 @@ ggplot(panoramic_photos, aes(x=percent_mussel, y=percent_postelsia,
         legend.position.inside = c(0.8, 0.75)) 
 
 
-
+ggsave("output/extra_figures/mussel_vs_postelsia.png", mussel_postelsia_plot, 
+       width = 7, height = 5, units = "in", dpi = 600)
   

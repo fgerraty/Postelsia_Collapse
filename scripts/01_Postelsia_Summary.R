@@ -180,7 +180,7 @@ ggsave("output/supplemental_figures/postelsia_all_sites.png", all_site_data,
 
 # Part X: Single Summary Plot -------------------------------------------------
 
-ggplot(postelsia_annual_summary, aes(x=year, y=percent_of_max))+
+postelsia_summary_plot <- ggplot(postelsia_annual_summary, aes(x=year, y=percent_of_max))+
   annotate("rect", xmin = 2014, xmax = 2016, ymin = -Inf, ymax = Inf, 
            fill = "red", alpha = 0.2) +
   geom_point(size = 3, alpha = .5, color = "olivedrab4")+
@@ -194,3 +194,6 @@ ggplot(postelsia_annual_summary, aes(x=year, y=percent_of_max))+
         strip.text = element_text(face = "bold"),
         axis.title.x = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold")) 
+
+ggsave("output/extra_figures/postelsia_summary.png", postelsia_summary_plot, 
+       width = 7, height = 5, units = "in", dpi = 600)

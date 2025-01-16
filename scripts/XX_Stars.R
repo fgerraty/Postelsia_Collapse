@@ -40,9 +40,14 @@ ggplot(stars_summary, aes(x=year, y=sum_pisaster_biomass_g))+
 
 
 # Part X: Single summary plot -------------------------------------------
-ggplot(stars_summary, aes(x=year, y=percent_of_max))+
+stars_summary_plot <- ggplot(stars_summary, aes(x=year, y=percent_of_max))+
+  # Add a vertical red bar for MHW duration
   annotate("rect", xmin = 2014, xmax = 2016, ymin = -Inf, ymax = Inf, 
            fill = "red", alpha = 0.2) +
+  # Add a vertical dashed line at 2013 for SSWD onset
+  geom_vline(xintercept = 2013, linetype = "dashed", 
+             color = "red", linewidth = 1) +
+  
   geom_point(size = 3, alpha = .5, color = "purple3")+
   geom_smooth(color = "purple3", fill = "purple1")+
   labs(y = "P. ochraceous biomass (% of maximum)",
@@ -53,7 +58,10 @@ ggplot(stars_summary, aes(x=year, y=percent_of_max))+
         strip.text = element_text(face = "bold"),
         axis.title.x = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold")) 
+stars_summary_plot
 
+ggsave("output/extra_figures/stars_summary.png", stars_summary_plot, 
+       width = 7, height = 5, units = "in", dpi = 600)
 
 # Part X: 2012-2021 Summary Plot ----------------------------------------------
 ggplot(stars_summary, aes(x=year, y=percent_of_max))+
