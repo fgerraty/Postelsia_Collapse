@@ -5,13 +5,18 @@
 # Script 01: Summarize + Visualize Postelsia Plot Data ###################
 #-------------------------------------------------------------------------
 
-# Part 1: Import Data ----------------------------------------------------
+#################################################
+# Part 1: Import, Clean, and Summarize Data #####
+#################################################
 
+# Import data ####
 postelsia <- read_csv("data/processed/postelsia_plots.csv")
 
 
-# Part 2: Clean and Summarize Data ---------------------------------------------
+# Part 2: Clean and summarize data ####
 
+
+#Generate annual summary dataset
 postelsia_annual_summary <- postelsia %>% 
   #Combine plots at each given site (sum of area and of total counts)
   group_by(site_id, georegion, year, season) %>% 
@@ -26,8 +31,12 @@ postelsia_annual_summary <- postelsia %>%
   mutate(period = ifelse(year < 2015, "pre_MHW", "post_MHW")) %>% 
   group_by(site_id) %>%
   mutate(percent_of_max = (density / max(density, na.rm = TRUE)) * 100) %>%
-  ungroup()
+  ungroup() %>% 
+  mutate(site_id = as.character(site_id),
+         site_id = factor(site_id, levels = 1:17))
 
+
+#Generate site-level summary dataset 
 postelsia_summary <- postelsia_annual_summary%>% 
   #Summarise data before (all years up to and including 2014) vs after MHW (2015-onward)
   group_by(site_id, georegion, period) %>% 
@@ -48,8 +57,9 @@ postelsia_summary <- postelsia_annual_summary%>%
          site_id = factor(site_id, levels = rev(1:17)))
 
 
-# Part 3: Postelsia summary table for manuscript -------------------------------
-
+#####################################################################
+# Part 2: Postelsia plot summary table for manuscript (Table S1) ####
+#####################################################################
 
 postelsia_table_gt <- postelsia_summary %>% 
   mutate(pre_MHW_density = sprintf("%.2f (+/- %.2f)", mean_density_pre_MHW, se_density_pre_MHW),
@@ -58,8 +68,9 @@ postelsia_table_gt <- postelsia_summary %>%
          pre_MHW_density = gsub("\\(\\+/- NA\\)", "", pre_MHW_density),
          post_MHW_density = gsub("\\(\\+/- NA\\)", "", post_MHW_density)) %>% 
   select(site_id, georegion, n_years_total, 
-         n_years_pre_MHW,pre_MHW_density, 
-         n_years_post_MHW,post_MHW_density, percent_change) %>% 
+         n_years_pre_MHW,n_years_post_MHW,
+         pre_MHW_density, post_MHW_density, 
+         percent_change) %>% 
   gt()
 
 
@@ -82,7 +93,9 @@ postelsia_table
 gtsave(postelsia_table, "output/supplemental_figures/postelsia_summary_table.pdf")
 
 
-# Part X: Figure XA, bar plot of postelsia % change ----------------------------
+########################################################
+# Part 3: Figure 2A, bar plot of Postelsia % change ####
+########################################################
 
 bar_plot <- ggplot(postelsia_summary, aes(x=site_id, y=percent_change, 
                                           fill = percent_change > 0))+
@@ -101,8 +114,9 @@ bar_plot <- ggplot(postelsia_summary, aes(x=site_id, y=percent_change,
 
 ggsave("output/extra_figures/map/bar_plot.png", bar_plot, width = 3, height = 6.4, units = "in", dpi = 600)
 
-# Part X: Supplemental Figure: % density change vs. sampling effort ------------
-
+#######################################################################
+# Part 4: Postelsia density change vs. sampling effort (Figure SX) ####
+#######################################################################
 
 # Plot percent change of postelsia density against total number of survey years
 density_vs_all_years <- ggplot(postelsia_summary, aes(x=n_years_total, y=percent_change,
@@ -154,15 +168,15 @@ ggsave("output/extra_figures/density_vs_pre_years.png", density_vs_pre_years,
 ggsave("output/extra_figures/density_vs_post_years.png", density_vs_post_years, 
        width = 3.7, height = 2.5, units = "in", dpi = 600)
 
-
-# Part X: Annual Trends (All Sites) -------------------------------------------
-
+##################################################
+# Part 5: Postelsia annual trends (all sites) ####
+##################################################
 
 all_site_data <- ggplot(postelsia_annual_summary, aes(x=year, y=density))+
   # Add semi-transparent red box spanning 2014-2016
   annotate("rect", xmin = 2014, xmax = 2016, ymin = -Inf, ymax = Inf, 
            fill = "red", alpha = 0.2) +
-  geom_point()+
+  geom_point(size = 2, alpha = .85, color = "olivedrab4")+
   facet_wrap(facets = "site_id", scales = "free_y", ncol = 4)+
   scale_y_continuous(limits = c(0, NA))+
   labs(y = expression(bold(P. ~ palmaeformis ~ density ~ (individuals / m^2))),
@@ -173,27 +187,76 @@ all_site_data <- ggplot(postelsia_annual_summary, aes(x=year, y=density))+
         strip.text = element_text(face = "bold"),
         axis.title.x = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold"))
+all_site_data
 
 ggsave("output/supplemental_figures/postelsia_all_sites.png", all_site_data, 
        width = 8, height = 8, units = "in", dpi = 600)
         
 
+##################
+# Part 6: GAM ####
+##################
+
+set.seed(99)
+
+#Fit GAM
+postelsia_gam <- gam(
+  percent_of_max ~ s(year, k = 5) + #Year as smooth predictor
+    s(site_id, bs = "re"), #Site as a random effect
+  data = postelsia_annual_summary,
+  method = "REML") # Use restricted maximum likelihood for smoother estimation
+
+summary(postelsia_gam)
+
+# Interrogate GAM model
+par(mfrow = c(2, 2)) # Set up plotting grid
+gam.check(postelsia_gam)
+
+plot(postelsia_gam, pages = 1, rug = TRUE, shade = TRUE)
+plot(residuals(postelsia_gam) ~ postelsia_annual_summary$year)
+
+
+smooth_coefs(postelsia_gam, "s(site_id)")
+
+#Identify the site_id with the median estimate, which we will use for predictions
+(smooth_estimates(postelsia_gam) %>% 
+  filter(.smooth == "s(site_id)") %>% 
+  filter(.estimate == median(.estimate)))$site_id
+
+
+
+#Predict values from GAM for plotting
+gam_predictions <- data.frame(
+  year = 2000:2024,
+  site_id = 12
+  ) %>% 
+  mutate(
+    fit = predict.gam(postelsia_gam, newdata = ., se.fit = TRUE)$fit,
+    se = predict.gam(postelsia_gam, newdata = ., se.fit = TRUE)$se.fit,
+    lower = fit - 1.96 * se,  #95% CI
+    upper = fit + 1.96 * se)
+
+
 # Part X: Single Summary Plot -------------------------------------------------
 
-postelsia_summary_plot <- ggplot(postelsia_annual_summary, aes(x=year, y=percent_of_max))+
+postelsia_summary_plot <- ggplot(postelsia_annual_summary, aes(x=year))+
   annotate("rect", xmin = 2014, xmax = 2016, ymin = -Inf, ymax = Inf, 
            fill = "red", alpha = 0.2) +
-  geom_point(size = 3, alpha = .5, color = "olivedrab4")+
-  geom_smooth(color = "olivedrab4", fill = "olivedrab4")+
+  geom_point(aes(y=percent_of_max), 
+             size = 3, alpha = .5, color = "olivedrab4")+
+  geom_line(data = gam_predictions, aes(y=fit), 
+            color = "olivedrab4", linewidth = 1)+
+  geom_ribbon(data = gam_predictions, aes(ymin = lower, ymax = upper),
+              fill = "olivedrab4", alpha = 0.4) +
   labs(y = "P. palmaeformis density (% of maximum)",
        x = "Year")+
   theme_few()+
-#  coord_cartesian(xlim = c(2012, 2024))+
   theme(axis.text.x = element_text(angle = 45, vjust = 1.1,hjust = 1),
         panel.border = element_rect(linewidth = 2),
         strip.text = element_text(face = "bold"),
         axis.title.x = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold")) 
+postelsia_summary_plot
 
 ggsave("output/extra_figures/postelsia_summary.png", postelsia_summary_plot, 
        width = 7, height = 5, units = "in", dpi = 600)
