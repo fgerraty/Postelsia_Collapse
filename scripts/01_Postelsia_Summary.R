@@ -227,7 +227,7 @@ smooth_coefs(postelsia_gam, "s(site_id)")
 
 #Predict values from GAM for plotting
 gam_predictions <- data.frame(
-  year = 2000:2024,
+  year = seq(2000, 2024, by = 0.25),
   site_id = 12
   ) %>% 
   mutate(
