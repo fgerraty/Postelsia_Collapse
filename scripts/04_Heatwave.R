@@ -2,7 +2,7 @@
 # Postelsia Project ######################################################
 # Author: Frankie Gerraty (frankiegerraty@gmail.com; fgerraty@ucsc.edu) ##
 ##########################################################################
-# Script X: Sea Water Temperature Data ###################################
+# Script 04: Marine Heatwave Detection + Visualization ###################
 #-------------------------------------------------------------------------
 
 ######################################
