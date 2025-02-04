@@ -153,6 +153,7 @@ photo_summary <- ggplot(panoramic_photos_long,
         legend.title=element_text(face="bold"),
         legend.position = "inside", 
         legend.position.inside = c(0.8, 0.5)) 
+photo_summary
 
 ggsave("output/extra_figures/photo_summary.png", photo_summary, 
        width = 6, height = 6, units = "in", dpi = 600)
@@ -190,8 +191,49 @@ mussel_postelsia_plot <- ggplot(panoramic_photos, aes(x=percent_mussel, y=percen
         legend.title=element_text(face="bold"),
         legend.position = "inside", 
         legend.position.inside = c(0.8, 0.75)) 
-
+mussel_postelsia_plot
 
 ggsave("output/extra_figures/mussel_vs_postelsia.png", mussel_postelsia_plot, 
        width = 7, height = 5, units = "in", dpi = 600)
   
+
+##################################
+#Mussels Summary Plot ############
+##################################
+
+
+mussel_summary_plot <- ggplot(filter(panoramic_photos_long, species == "mussel"), 
+       aes(x=year)) +
+  # Add semi-transparent red box spanning 2014-2016
+  annotate("rect", xmin = 2014, xmax = 2016, ymin = -Inf, ymax = Inf, 
+           fill = "red", alpha = 0.2) +
+  # Add semi-transparent grey boxes for years without data
+  annotate("rect", xmin = 1999, xmax = 2012, ymin = -Inf, ymax = Inf, 
+           fill = "grey", alpha = 0.5) +
+  annotate("rect", xmin = 2021, xmax = 2025, ymin = -Inf, ymax = Inf, 
+           fill = "grey", alpha = 0.5) +
+  
+  #Add points
+  geom_point(aes(y=percent_of_max, color = species, fill = species), size = 3, alpha = .7)+
+  #Mussel GAM layers
+  geom_line(data = mussel_gam_predictions, aes(y=fit), 
+            color = "darkblue", linewidth = 1)+
+  geom_ribbon(data = mussel_gam_predictions, aes(ymin = lower, ymax = upper),
+              fill = "darkblue", alpha = 0.4) +
+  labs(x = "", y= "Mussel Abundance\n(% of maximum)", fill = "Species", color = "Species")+
+  scale_fill_manual(values = c("darkblue", "olivedrab4"),
+                    labels = c("Mussel", "Postelsia"))+
+  scale_color_manual(values = c("darkblue", "olivedrab4"),
+                     labels = c("Mussel", "Postelsia"))+
+  scale_y_continuous(breaks = c(0, 25, 50, 75, 100))+
+  coord_cartesian(xlim = c(2000, 2024))+
+  theme_few()+
+  theme(axis.text.x = element_blank(),
+        panel.border = element_rect(linewidth = 2),
+        strip.text = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold"),
+        legend.position = "none") 
+mussel_summary_plot
+
+ggsave("output/extra_figures/summary_figure/mussel_summary.png", mussel_summary_plot, 
+       width = 6, height = 2.5, units = "in", dpi = 600)

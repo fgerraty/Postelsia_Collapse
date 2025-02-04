@@ -201,7 +201,7 @@ set.seed(99)
 
 #Fit GAM
 postelsia_gam <- gam(
-  percent_of_max ~ s(year, k = 5) + #Year as smooth predictor
+  percent_of_max ~ s(year, k = 15) + #Year as smooth predictor
     s(site_id, bs = "re"), #Site as a random effect
   data = postelsia_annual_summary,
   method = "REML") # Use restricted maximum likelihood for smoother estimation
@@ -211,6 +211,7 @@ summary(postelsia_gam)
 # Interrogate GAM model
 par(mfrow = c(2, 2)) # Set up plotting grid
 gam.check(postelsia_gam)
+k.check(postelsia_gam, subsample=5000, n.rep=400)
 
 plot(postelsia_gam, pages = 1, rug = TRUE, shade = TRUE)
 plot(residuals(postelsia_gam) ~ postelsia_annual_summary$year)
@@ -228,7 +229,7 @@ smooth_coefs(postelsia_gam, "s(site_id)")
 #Predict values from GAM for plotting
 gam_predictions <- data.frame(
   year = seq(2000, 2024, by = 0.25),
-  site_id = 12
+  site_id = 15
   ) %>% 
   mutate(
     fit = predict.gam(postelsia_gam, newdata = ., se.fit = TRUE)$fit,
@@ -260,3 +261,28 @@ postelsia_summary_plot
 
 ggsave("output/extra_figures/postelsia_summary.png", postelsia_summary_plot, 
        width = 7, height = 5, units = "in", dpi = 600)
+
+
+
+#Miniature summary plot
+
+postelsia_summary_plot_mini <- ggplot(postelsia_annual_summary, aes(x=year))+
+  annotate("rect", xmin = 2014, xmax = 2016, ymin = -Inf, ymax = Inf, 
+           fill = "red", alpha = 0.2) +
+  geom_point(aes(y=percent_of_max), 
+             size = 3, alpha = .5, color = "olivedrab4")+
+  geom_line(data = gam_predictions, aes(y=fit), 
+            color = "olivedrab4", linewidth = 1)+
+  geom_ribbon(data = gam_predictions, aes(ymin = lower, ymax = upper),
+              fill = "olivedrab4", alpha = 0.4) +
+  labs(y = "P. palmaeformis density\n(% of maximum)",
+       x = "")+
+  theme_few()+
+  theme(axis.text.x = element_blank(),
+        panel.border = element_rect(linewidth = 2),
+        strip.text = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold")) 
+postelsia_summary_plot_mini
+
+ggsave("output/extra_figures/summary_figure/postelsia_summary.png", postelsia_summary_plot_mini, 
+       width = 6, height = 2.5, units = "in", dpi = 600)

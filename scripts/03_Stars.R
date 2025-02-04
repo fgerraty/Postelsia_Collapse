@@ -61,7 +61,7 @@ set.seed(99)
 
 #Fit GAM
 star_gam <- gam(
-  percent_of_max ~ s(year, k = 5) + #Year as smooth predictor
+  percent_of_max ~ s(year, k = 10) + #Year as smooth predictor
     s(site_id, bs = "re"), #Site as a random effect
   data = stars_summary,
   method = "REML") # Use restricted maximum likelihood for smoother estimation
@@ -87,7 +87,7 @@ smooth_coefs(star_gam, "s(site_id)")
 
 #Predict values from GAM for plotting
 gam_predictions <- data.frame(
-  year = seq(2000, 2021, by = 0.25),
+  year = seq(2000, 2024, by = 0.25),
   site_id = 12
 ) %>% 
   mutate(
@@ -98,8 +98,10 @@ gam_predictions <- data.frame(
 
 
 
+############################
+# Part 4: Summary Plots ####
+############################
 
-# Single summary plot 
 stars_summary_plot <- ggplot(stars_summary, aes(x=year))+
   # Add a vertical red bar for MHW duration
   annotate("rect", xmin = 2014, xmax = 2016, ymin = -Inf, ymax = Inf, 
@@ -126,4 +128,31 @@ stars_summary_plot
 ggsave("output/extra_figures/stars_summary.png", stars_summary_plot, 
        width = 7, height = 5, units = "in", dpi = 600)
 
+
+#Mini plot
+
+stars_summary_plot_mini <- ggplot(stars_summary, aes(x=year))+
+  # Add a vertical red bar for MHW duration
+  annotate("rect", xmin = 2014, xmax = 2016, ymin = -Inf, ymax = Inf, 
+           fill = "red", alpha = 0.2) +
+  # Add a vertical dashed line at 2013 for SSWD onset
+  geom_vline(xintercept = 2013, linetype = "dashed", 
+             color = "red", linewidth = 1) +
+  geom_point(aes(y=percent_of_max), size = 3, alpha = .5, color = "purple3")+
+  
+  geom_line(data = gam_predictions, aes(y=fit), 
+            color = "purple3", linewidth = 1)+
+  geom_ribbon(data = gam_predictions, aes(ymin = lower, ymax = upper),
+              fill = "purple1", alpha = 0.4) +
+  labs(y = "P. ochraceous biomass\n(% of maximum)",
+       x = "")+
+  theme_few()+
+  theme(axis.text.x = element_blank(),
+        panel.border = element_rect(linewidth = 2),
+        strip.text = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold")) 
+stars_summary_plot_mini
+
+ggsave("output/extra_figures/summary_figure/stars_summary.png", stars_summary_plot_mini, 
+       width = 6, height = 2.5, units = "in", dpi = 600)
 

@@ -88,7 +88,7 @@ set.seed(99)
 
 #Fit GAM
 heatwave_gam <- gam(
-  mhw_days ~ s(year, k = 11) + #Year as smooth predictor
+  mhw_days ~ s(year, k = 10) + #Year as smooth predictor
     s(site_id, bs = "re"), #Site as a random effect
   data = mhw_summary,
   method = "REML") # Use restricted maximum likelihood for smoother estimation
@@ -122,18 +122,26 @@ gam_predictions <- data.frame(
     lower = fit - 1.96 * se,  #95% CI
     upper = fit + 1.96 * se)
 
-ggplot(mhw_summary, aes(x=year)) +
+
+####################################
+# Part 4: Heatwave Summary Plot ####
+####################################
+
+heatwave_summary_plot <- ggplot(mhw_summary, aes(x=year)) +
   geom_point(aes(y=mhw_days),color = "red")+
   geom_line(data = gam_predictions, aes(y=fit), 
             color = "red", linewidth = 1)+
   geom_ribbon(data = gam_predictions, aes(ymin = lower, ymax = upper),
               fill = "red", alpha = 0.4) +
-  coord_cartesian(ylim = c(0,150))+
-  labs(x="Year", y="Marine Heatwave Days")+
+  coord_cartesian(ylim = c(0,150), xlim = c(2000,2024))+
+  labs(x="Year", y="Marine Heatwave Index\n(# Days / Year)")+
   theme_few()+
   theme(axis.text.x = element_text(angle = 45, vjust = 1.1,hjust = 1),
         panel.border = element_rect(linewidth = 2),
         strip.text = element_text(face = "bold"),
         axis.title.x = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold")) 
+heatwave_summary_plot
 
+ggsave("output/extra_figures/summary_figure/heatwave_summary.png", heatwave_summary_plot, 
+       width = 6, height = 2.5, units = "in", dpi = 600)
