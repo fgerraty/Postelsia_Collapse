@@ -21,7 +21,7 @@ temperature <- read_csv("data/processed/temperature.csv") %>%
 # Part 2A: Create named list of temperature data for each site ####
 
 # Define site IDs
-site_ids <- c("2", "3", "5", "8", "12", "13", "14", "16", "17")
+site_ids <- c("1", "2", "3", "5", "8", "12", "13", "14", "16", "17")
 
 # Filter temperature data by site and store in a named list
 SST_site <- lapply(site_ids, function(current_site) {
@@ -114,7 +114,7 @@ smooth_coefs(heatwave_gam, "s(site_id)")
 
 #Predict values from GAM for plotting
 gam_predictions <- data.frame(
-  year = seq(2000, 2018, by = 0.25),
+  year = seq(2000, 2024, by = 0.25),
   site_id = "16") %>% 
   mutate(
     fit = predict.gam(heatwave_gam, newdata = ., se.fit = TRUE)$fit,
