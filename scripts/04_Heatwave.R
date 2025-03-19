@@ -149,13 +149,46 @@ categorized_summary_plot <- ggplot(categorized_summary_plot_df, aes(x=year, y=me
         axis.title.x = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold"),
         legend.title = element_text(face = "bold"),
+        legend.box.background = element_rect(linewidth = 1.2,
+                                             colour = "black"),
         legend.position = "inside",
         legend.position.inside = c(0.9, 0.8)) 
 categorized_summary_plot
 
+ggsave("output/extra_figures/MHW_category_plot.png", categorized_summary_plot,
+       width = 7, height = 5, units = "in", dpi = 600)
 
-#Single site example plot
 
+# Single site example plot ######
+# (We will use site 5 as an example)
+
+site_5_temp <- temperature %>% 
+  filter(site_id=="5")
+ts5 <- ts2clm(site_5_temp, x = t, y = temp, pctile = 90,
+              climatologyPeriod = range(site_5_temp$t))
+MHW5 <- detect_event(ts5) 
+MHW_cat5 <- category(MHW5, S = TRUE)
+
+
+
+single_site_example <- event_line(MHW5, category = TRUE, spread = 180,
+           start_date = "2011-01-01", end_date = "2016-12-31")+
+  theme_few()+
+  labs(y = expression("Temperature " ( degree~C)),
+       x="Date")+
+  theme(panel.border = element_rect(linewidth = 2),
+        strip.text = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold"),
+        legend.title = element_text(face = "bold"),
+        legend.box.background = element_rect(linewidth = 1.2,
+                                             colour = "black"),
+        legend.position = "inside",
+        legend.position.inside = c(0.88, 0.8)) 
+single_site_example
+
+ggsave("output/extra_figures/MHW_example.png", single_site_example,
+       width = 7, height = 5, units = "in", dpi = 600)
 
 
 
