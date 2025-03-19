@@ -109,13 +109,13 @@ smooth_coefs(heatwave_gam, "s(site_id)")
 (smooth_estimates(heatwave_gam) %>% 
     filter(.smooth == "s(site_id)") %>% 
     filter(.estimate == median(.estimate)))$site_id
-
+ #NOTE: Not working because there is no median! 
 
 
 #Predict values from GAM for plotting
 gam_predictions <- data.frame(
   year = seq(2000, 2024, by = 0.25),
-  site_id = "16") %>% 
+  site_id = "5") %>% 
   mutate(
     fit = predict.gam(heatwave_gam, newdata = ., se.fit = TRUE)$fit,
     se = predict.gam(heatwave_gam, newdata = ., se.fit = TRUE)$se.fit,

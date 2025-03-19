@@ -104,13 +104,14 @@ bar_plot <- ggplot(postelsia_summary, aes(x=site_id, y=percent_change,
   scale_y_continuous(breaks = c(-100, -50, 0, 50))+
   scale_fill_manual(
     values = c("TRUE" = "#1F509A", "FALSE" = "#E38E49"))+
-  coord_flip(ylim = c(-100, 75))+
+  coord_flip(ylim = c(-100, 95))+
   labs(x = "Site", 
        y = "Percent change of\nP. palmaeformis density",
        fill = "")+
   theme_few()+
   theme(legend.position = "none",
         panel.border = element_rect(linewidth = 2))
+bar_plot
 
 ggsave("output/extra_figures/map/bar_plot.png", bar_plot, width = 3, height = 6.4, units = "in", dpi = 600)
 
