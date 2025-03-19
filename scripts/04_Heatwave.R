@@ -48,20 +48,13 @@ clim_site <- lapply(names(SST_site), function(site) {
 names(clim_site) <- names(SST_site)  # Assign names to the list
 
 
-# Part 2C: Detect and categorize MHW events for all sites ####
+# Part 2C: Detect MHW events for all sites ####
 
 # Detect MHWs from each site's climatology data
 events <- lapply(names(clim_site), function(site) {
   detect_event(clim_site[[site]], coldSpells = FALSE)
 })
 names(events) <- names(clim_site)  # Assign names to the list
-
-
-# Categorize MHW events for all sites
-MHW_categories <- lapply(names(events), function(site) {
-  category(events[[site]], S = TRUE, name = site)
-})
-names(MHW_categories) <- names(events)  # Assign names to the list
 
 
 # Part 2D. Summarize marine heatwave (MHW) days per year for each site ####
@@ -81,6 +74,12 @@ MHW_summary <- bind_rows(MHW_days_per_site) %>%
   mutate(year = as.numeric(year))
 
 #Part 2E: Summarize marine heatwave days in each category per year for each site ####
+
+# Categorize MHW events for all sites
+MHW_categories <- lapply(names(events), function(site) {
+  category(events[[site]], S = TRUE, name = site)
+})
+names(MHW_categories) <- names(events)  # Assign names to the list
 
 # Extract and summarize MHW days per site-category-year
 MHW_days_categorized <- lapply(names(MHW_categories), function(site) {
@@ -111,7 +110,7 @@ MHW_categorized_summary <- bind_rows(MHW_days_categorized)
 # Part 3: Visualize Marine Heatwaves ####
 #########################################
 
-#Categorized heatwave summary plot
+# PART 3A: Categorized heatwave summary plot ####
 
 categorized_summary_plot_df <- MHW_categorized_summary %>% 
   select(-category) %>% 
@@ -133,7 +132,6 @@ MHW_colours <- c(
   "Severe" = "#9e0000",
   "Extreme" = "#2d0000"
 )
-
 
 
 categorized_summary_plot <- ggplot(categorized_summary_plot_df, aes(x=year, y=mean_heatwave_days, fill = category))+
@@ -159,9 +157,10 @@ ggsave("output/extra_figures/MHW_category_plot.png", categorized_summary_plot,
        width = 7, height = 5, units = "in", dpi = 600)
 
 
-# Single site example plot ######
-# (We will use site 5 as an example)
+# Part 3B: Single site example plot #####
+# We will use site 5 as an example
 
+#Generate climatology, detect MHW events for site 5
 site_5_temp <- temperature %>% 
   filter(site_id=="5")
 ts5 <- ts2clm(site_5_temp, x = t, y = temp, pctile = 90,
@@ -170,6 +169,7 @@ MHW5 <- detect_event(ts5)
 MHW_cat5 <- category(MHW5, S = TRUE)
 
 
+#Plot Site 5 marine heatwave obeservations as an example
 
 single_site_example <- event_line(MHW5, category = TRUE, spread = 180,
            start_date = "2011-01-01", end_date = "2016-12-31")+
