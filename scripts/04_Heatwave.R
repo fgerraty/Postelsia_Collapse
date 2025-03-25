@@ -258,3 +258,130 @@ heatwave_summary_plot
 
 ggsave("output/extra_figures/summary_figure/heatwave_summary.png", heatwave_summary_plot, 
        width = 6, height = 2.5, units = "in", dpi = 600)
+
+
+#################################################
+# Part 5: Site-Level Heatwave Visualization  ####
+#################################################
+
+# Part 5A: Single site example (Used to extract legend) ####
+
+# Create category breaks and select slice of data.frame
+clim_cat <- events$"1"$climatology %>%
+  mutate(diff = thresh - seas,
+         thresh_2x = thresh + diff,
+         thresh_3x = thresh_2x + diff,
+         thresh_4x = thresh_3x + diff) %>% 
+  filter(t > as.Date("2013-01-01") & t < "2018-01-01")
+
+# Set line colours
+lineColCat <- c(
+  "Temperature" = "black",
+  "Climatology" = "blue",
+  "Threshold" = "darkgreen",
+  "2x Threshold" = "darkgreen",
+  "3x Threshold" = "darkgreen",
+  "4x Threshold" = "darkgreen"
+)
+
+# Set category fill colours
+fillColCat <- c(
+  "Moderate" = "#ffc866",
+  "Strong" = "#ff6900",
+  "Severe" = "#9e0000",
+  "Extreme" = "#2d0000"
+)
+
+# Create plot
+example_plot <- ggplot(clim_cat, aes(x = t, y = temp)) +
+  geom_flame(aes(y2 = thresh, fill = "Moderate")) +
+  geom_flame(aes(y2 = thresh_2x, fill = "Strong")) +
+  geom_flame(aes(y2 = thresh_3x, fill = "Severe")) +
+  geom_flame(aes(y2 = thresh_4x, fill = "Extreme")) +
+  geom_line(aes(y = temp, col = "Temperature"), size = 0.6) +
+  geom_line(aes(y = seas, col = "Climatology"), size = 0.7) +
+  geom_line(aes(y = thresh, col = "Threshold"), size = 0.7) +
+  geom_line(aes(y = thresh_2x, col = "2x Threshold"), size = 0.7, linetype = "dashed") +
+  geom_line(aes(y = thresh_3x, col = "3x Threshold"), size = 0.7, linetype = "dotdash") +
+  geom_line(aes(y = thresh_4x, col = "4x Threshold"), size = 0.7, linetype = "dotted") +
+  scale_colour_manual(name = NULL, values = lineColCat,
+                      limits = c("Temperature", "Climatology", "Threshold", 
+                                 "2x Threshold", "3x Threshold", "4x Threshold")) +
+  scale_fill_manual(name = NULL, values = fillColCat, guide = FALSE) +
+  scale_x_date(date_labels = "%b %Y", 
+               limits = c(as.Date("2014-01-01"), as.Date("2017-01-01"))) +
+  labs(y = "Temperature (°C)", x = NULL) +
+  theme_few() +
+  theme(legend.position = "top") +
+  guides(
+    colour = guide_legend(nrow = 1, override.aes = list(
+      linetype = c("solid", "solid", "solid", "dashed", "dotdash", "dotted"),
+      size = c(0.6, rep(0.7, 5)))))
+example_plot
+
+# Extract the legend and export 
+
+heatwave_legend <- get_legend(example_plot) %>% 
+  as_ggplot()
+
+heatwave_legend
+
+ggsave("output/extra_figures/heatwave/legend.png", heatwave_legend, 
+       width = 7, height = 1, units = "in")
+
+
+
+# Part 5B: Iterate through all sites ##### 
+
+# Define the folder for saving figures
+output_folder <- "output/extra_figures/heatwave/"
+
+# Loop through all sites and generate plots
+for (site in site_ids) {
+  
+  # Create category breaks and select slice of data.frame
+  clim_cat <- events[[site]]$climatology %>%
+    mutate(diff = thresh - seas,
+           thresh_2x = thresh + diff,
+           thresh_3x = thresh_2x + diff,
+           thresh_4x = thresh_3x + diff) %>% 
+    filter(t > as.Date("2013-01-01") & t < "2018-01-01") %>% 
+    #Append helper "temp" value immediately preceding marine heatwaves to fix geom_flame issue
+    mutate(
+      na_group = cumsum(!is.na(temp)),  # Create a grouping variable for NA runs
+      temp = ifelse(is.na(temp) & lead(!is.na(temp), default = TRUE), seas, temp)  # Replace last NA in each run
+    ) %>%
+    select(-na_group)  # Remove helper column
+  
+  # Create plot
+  site_plot <- ggplot(clim_cat, aes(x = t, y = temp)) +
+    geom_flame(aes(y2 = thresh, fill = "Moderate")) +
+    geom_flame(aes(y2 = thresh_2x, fill = "Strong")) +
+    geom_flame(aes(y2 = thresh_3x, fill = "Severe")) +
+    geom_flame(aes(y2 = thresh_4x, fill = "Extreme")) +
+    geom_line(aes(y = temp, col = "Temperature"), size = 0.6) +
+    geom_line(aes(y = seas, col = "Climatology"), size = 0.7) +
+    geom_line(aes(y = thresh, col = "Threshold"), size = 0.7) +
+    geom_line(aes(y = thresh_2x, col = "2x Threshold"), size = 0.7, linetype = "dashed") +
+    geom_line(aes(y = thresh_3x, col = "3x Threshold"), size = 0.7, linetype = "dotdash") +
+    geom_line(aes(y = thresh_4x, col = "4x Threshold"), size = 0.7, linetype = "dotted") +
+    scale_colour_manual(name = NULL, values = lineColCat,
+                        limits = c("Temperature", "Climatology", "Threshold", 
+                                   "2x Threshold", "3x Threshold", "4x Threshold")) +
+    scale_fill_manual(name = NULL, values = fillColCat, guide = FALSE) +
+    scale_x_date(date_labels = "%b %Y", 
+                 limits = c(as.Date("2014-01-01"), as.Date("2017-01-01"))) +
+    scale_y_continuous(breaks = scales::breaks_pretty(n = 4)) + 
+    labs(y = "Temperature (°C)", x = NULL) +
+    theme_few() +
+    theme(legend.position = "none",
+          axis.text.x = element_blank()) +
+    guides(
+      colour = guide_legend(nrow = 1, override.aes = list(
+        linetype = c("solid", "solid", "solid",  "dashed", "dotdash", "dotted"),
+        size = c(0.6, rep(0.7, 5)))))
+  
+  # Save the plot
+  ggsave(filename = paste0(output_folder, "heatwave_site_", site, ".png"),
+         plot = site_plot, width = 5, height = 2.5, dpi = 600)
+}
