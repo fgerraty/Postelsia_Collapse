@@ -1,6 +1,8 @@
 # Postelsia Collapse
 
-*Short synopsis*
+We examined the direct and indirect effects of the 2014-2016 northeast Pacific marine heatwave (MHW) and the synergistic sea star wasting disease outbreak on the abundance, persistence, and recovery of the sea palm, *Postelsia palmaeformis*. To do so, we leveraged long-term rocky intertidal community monitoring data collected for over two decades at seventeen sites spanning most of the southern portion of the kelp’s geographic range. We found that *P. palmaeformis* populations declined during the 2014-2016 MHW, likely due to acute thermal stress. In tandem, we found that ochre star (*Pisaster ochraceus*) loss led to mussel bed expansion, indirectly hindering *P. palmaeformis* recovery. Our results show that these synergistic disturbances acted as a “one-two punch” to drive persistent, broad-scale *P. palmaeformis* declines. 
+
+FD Gerraty, K Ammann, MA Douglas, M George, D Lohse, CM Miner, PT Raimondi. (2025) Marine heatwave and keystone predator loss drive broad-scale decline and hinder recovery of a rocky intertidal kelp. *In Review*
 
 ------------------------------------------------------------------------
 
@@ -8,7 +10,7 @@ There are 5 R scripts associated with this repository run all console and data p
 
 -   **00_Packages.R** loads every package that is needed in following scripts. After running this script, all following scripts can be run independently.
 
--   **01_Postelsia.R** conducts analyses and visualizations with data from MARINe *Postelsia palmaeformis* plots/transects.
+-   **01_Postelsia.R** conducts analyses and visualizations with data from MARINe *Postelsia palmaeformis* transects.
 
 -   **02_Repeat_Photos.R** conducts analyses and visualizations with extracted data from the repeated panoramic photos.
 
