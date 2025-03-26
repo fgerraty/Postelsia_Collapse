@@ -53,3 +53,27 @@ The "stars" dataset ([data/processed/stars.csv](https://github.com/fgerraty/Post
 -   **total** - total number of *Pisaster ochraceus* individuals (of referenced size class) counted in the plot.
 
 -   **pisaster_biomass_g** - estimated biomass of *Pisaster ochraceus* (of referenced size class) counted in the plot. This biomass measure was estimated using a log-log relationship between arm length and wet weight (Equation 1 from: Moritsch, M.M., Raimondi, P., 2018. Reduction and recovery of keystone predation pressure after disease-related mass mortality. Ecology and Evolution 8, 3952--3964. [**https://doi.org/10.1002/ece3.3953**](https://doi.org/10.1002/ece3.3953)).
+
+### "Temperature" Dataset
+
+The "temperature" dataset ([data/processed/temperature.csv](https://github.com/fgerraty/Postelsia_Collapse/blob/main/data/processed/temperature.csv)) contains intertidal water temperatuee data from 10 long-term monitoring sites collected using HOBO Pendant and TidbiT (v1 and v2) temperature loggers (Onset Computer Corporation, Bourne, Massachusetts, United States). The dataset contains the following columns:
+
+-   **site_id** - unique number code for each site
+
+-   **georegion** - geographical region in which a site is located
+
+-   **date** - date of water temperature data
+
+-   **year** - year in which water temperature data was collected (Range: 2000-2024)
+
+-   **month** - month in which water temperature data was collected (Range: 1-12)
+
+-   **day** - day of the month in which water temperature data was collected (Range: 1-31)
+
+-   **day_of_year** - day of the year in which water temperature data was collected (Range: 1-366)
+
+-   **n** - number of unique water temperature measurements (within survey day)
+
+-   **mean** - mean water temperature (ºC) on survey day
+
+-   **stderr** - standard error (ºC) of water temperature measurements on survey day.

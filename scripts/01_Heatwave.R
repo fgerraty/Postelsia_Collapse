@@ -34,14 +34,11 @@ names(SST_site) <- site_ids  # Assign names to the list
 
 # Part 2B: Generate site-level climatology data ####
 
-# Calculate climatology for each site and save as CSV
+# Calculate climatology for each site
 clim_site <- lapply(names(SST_site), function(site) {
   # Calculate climatology
   climatology <- ts2clm(SST_site[[site]], x = t, y = temp, pctile = 90,
                         climatologyPeriod = range(SST_site[[site]]$t))
-  
-  # Save the climatology to a CSV file
-  write.csv(climatology, paste0("data/processed/climatology/", site, "_climatology.csv"))
   
   climatology  # Return the climatology
 })
@@ -75,9 +72,9 @@ MHW_summary <- bind_rows(MHW_days_per_site) %>%
   mutate(year = as.numeric(year))
 
 #Identify site-year combinations with too sparse of water temperature data 
-# (threshold = 60 days missing)
+# (threshold = 25 days missing)
 too_little_data <- MHW_summary %>% 
-  filter(na_count > 60) %>% 
+  filter(na_count > 25) %>% 
   select(site_id, year)
 
 
@@ -216,7 +213,7 @@ ggsave("output/extra_figures/MHW_example.png", single_site_example,
 ##################
 
 gam_heatwave_data <- MHW_summary %>% 
-  filter(na_count < 60)
+  filter(na_count < 25)
 
 
 set.seed(99)

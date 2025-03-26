@@ -26,7 +26,7 @@ There are 5 R scripts associated with this repository run all console and data p
 
 ### Directory Information
 
-#### Folder "[data](https://github.com/fgerraty/Postelsia_Collapse/tree/main/data)" houses raw and processed data files associated with this repository.
+#### Folder "[data](https://github.com/fgerraty/Postelsia_Collapse/tree/main/data)" houses processed data files associated with this repository.
 
 See "[data dictionary](https://github.com/fgerraty/Postelsia_Collapse/blob/main/data/README.md)" for details on data files and associated metadata
 
