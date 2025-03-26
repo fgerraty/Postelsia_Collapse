@@ -2,7 +2,7 @@
 # Postelsia Project ######################################################
 # Author: Frankie Gerraty (frankiegerraty@gmail.com; fgerraty@ucsc.edu) ##
 ##########################################################################
-# Script 04: Marine Heatwave Detection + Visualization ###################
+# Script 01: Marine Heatwave Detection + Visualization ###################
 #-------------------------------------------------------------------------
 
 ######################################
@@ -62,16 +62,24 @@ names(events) <- names(clim_site)  # Assign names to the list
 # Extract and summarize MHW days from the "climatology" sub-list
 MHW_days_per_site <- lapply(names(events), function(site) {
   events[[site]]$climatology %>%
-    filter(event) %>%  # Keep only rows where event == TRUE
     mutate(year = year(t)) %>%  # Extract the year from the date
     group_by(year) %>%
-    summarize(mhw_days = n(), .groups = "drop") %>%  # Count MHW days per year
+    summarize(mhw_days = sum(event, na.rm = TRUE),  # Count MHW days per year
+              na_count = sum(is.na(temp)), # Count days with no data
+              .groups = "drop") %>%  
     mutate(site_id = factor(site))  # Add site name for reference
 })
 
 # Combine results into a summary dataframe
 MHW_summary <- bind_rows(MHW_days_per_site) %>% 
   mutate(year = as.numeric(year))
+
+#Identify site-year combinations with too sparse of water temperature data 
+# (threshold = 60 days missing)
+too_little_data <- MHW_summary %>% 
+  filter(na_count > 60) %>% 
+  select(site_id, year)
+
 
 #Part 2E: Summarize marine heatwave days in each category per year for each site ####
 
@@ -107,20 +115,25 @@ MHW_categorized_summary <- bind_rows(MHW_days_categorized)
 
 
 #########################################
-# Part 3: Visualize Marine Heatwaves ####
+# Part 3: Summarize Marine Heatwaves ####
 #########################################
 
 # PART 3A: Categorized heatwave summary plot ####
 
 categorized_summary_plot_df <- MHW_categorized_summary %>% 
   select(-category) %>% 
+  #Rename + pivot for plotting
   rename(Moderate = days_moderate, Strong = days_strong, 
          Severe = days_severe, Extreme = days_extreme) %>% 
   pivot_longer(cols = c("Moderate", "Strong", "Severe", "Extreme"),
                names_to = "category", 
                values_to = "duration") %>% 
+  #Remove site-years with too sparse water temp data
+  anti_join(too_little_data, by = c("site_id", "year"))%>% 
+  #Summarize across heatwave events within sites, categories, years
   group_by(site_id, category, year) %>% 
   summarize(sum_heatwave_days = sum(duration), .groups="drop") %>% 
+  #Summarize across sites by category + year
   group_by(category, year) %>% 
   summarize(mean_heatwave_days = mean(sum_heatwave_days), .groups = "drop") %>% 
   mutate(category = factor(category, levels = c( "Extreme","Severe","Strong","Moderate")))
@@ -157,25 +170,31 @@ ggsave("output/extra_figures/MHW_category_plot.png", categorized_summary_plot,
        width = 7, height = 5, units = "in", dpi = 600)
 
 
-# Part 3B: Single site example plot #####
+#########################################
+# Part 4: Single Site Example Plot ######
+#########################################
+
 # We will use site 5 as an example
 
-#Generate climatology, detect MHW events for site 5
-site_5_temp <- temperature %>% 
-  filter(site_id=="5")
-ts5 <- ts2clm(site_5_temp, x = t, y = temp, pctile = 90,
-              climatologyPeriod = range(site_5_temp$t))
-MHW5 <- detect_event(ts5) 
-MHW_cat5 <- category(MHW5, S = TRUE)
+# Set line colours
+lineColCat <- c(
+  "Temperature" = "black",
+  "Climatology" = "blue",
+  "Threshold" = "darkgreen",
+  "2x Threshold" = "darkgreen",
+  "3x Threshold" = "darkgreen",
+  "4x Threshold" = "darkgreen"
+)
 
-
-#Plot Site 5 marine heatwave obeservations as an example
-
-single_site_example <- event_line(MHW5, category = TRUE, spread = 180,
+#Plot
+single_site_example <- event_line(events$"5", category = TRUE, spread = 180,
            start_date = "2011-01-01", end_date = "2016-12-31")+
   theme_few()+
-  labs(y = expression("Temperature " ( degree~C)),
+  labs(y = expression(bold("Temperature " ( degree~C))),
        x="Date")+
+  scale_colour_manual(name = NULL, values = lineColCat,
+                      limits = c("Temperature", "Climatology", "Threshold", 
+                                 "2x Threshold", "3x Threshold", "4x Threshold")) +
   theme(panel.border = element_rect(linewidth = 2),
         strip.text = element_text(face = "bold"),
         axis.title.x = element_text(face = "bold"),
@@ -196,6 +215,9 @@ ggsave("output/extra_figures/MHW_example.png", single_site_example,
 # Part 4: GAM ####
 ##################
 
+gam_heatwave_data <- MHW_summary %>% 
+  filter(na_count < 60)
+
 
 set.seed(99)
 
@@ -203,7 +225,7 @@ set.seed(99)
 heatwave_gam <- gam(
   mhw_days ~ s(year, k = 10) + #Year as smooth predictor
     s(site_id, bs = "re"), #Site as a random effect
-  data = MHW_summary,
+  data = gam_heatwave_data,
   method = "REML") # Use restricted maximum likelihood for smoother estimation
 
 summary(heatwave_gam)
@@ -213,7 +235,7 @@ par(mfrow = c(2, 2)) # Set up plotting grid
 gam.check(heatwave_gam)
 
 plot(heatwave_gam, pages = 1, rug = TRUE, shade = TRUE)
-plot(residuals(heatwave_gam) ~ MHW_summary$year)
+plot(residuals(heatwave_gam) ~ gam_heatwave_data$year)
 
 
 smooth_coefs(heatwave_gam, "s(site_id)")
