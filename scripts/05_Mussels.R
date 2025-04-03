@@ -147,28 +147,22 @@ ggsave("output/extra_figures/mussel_depth_distribution.png", mussel_depth_distri
 # Part 3: Mussel Depth Distribution Analysis  #####
 ###################################################
 
+model_df <- mussels %>% 
+  mutate(tidal_elevation_shifted = tidal_elevation+2.301)
 
 
-model <- lmer(tidal_elevation ~ period + 
-                (1 | site_id/x_transect), data = mussels)
+
+model <- glmmTMB(tidal_elevation_shifted ~ period + 
+                (1 | site_id/x_transect), 
+               data = model_df,
+               family = tweedie())
 summary(model)
 
+model_sim <- simulateResiduals(fittedModel = model, plot = F)
+plot(model_sim)
+testDispersion(model_sim)
 
+plot(model)
 
-library(ggeffects)
-
-preds <- ggpredict(model, terms = "period")  # Get predictions
-
-ggplot(preds, aes(x = x, y = predicted)) +
-  geom_point(size = 3) +
-  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2) +
-  theme_minimal()
-
-
-ggplot(mussels, aes(x = period)) +
-  geom_jitter(width = 0.1, alpha = 0.3, aes(y = tidal_elevation)) + # Scatter with jitter
-  geom_point(data = preds, aes(x = x, y = predicted), color = "red", size = 4) + 
-  geom_errorbar(data = preds, aes(x = x, ymin = conf.low, ymax = conf.high), width = 0.2, color = "red") +
-  theme_minimal()
 
 
