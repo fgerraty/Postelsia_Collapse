@@ -297,10 +297,7 @@ clim_cat <- events$"1"$climatology %>%
 lineColCat <- c(
   "Temperature" = "black",
   "Climatology" = "blue",
-  "Threshold" = "darkgreen",
-  "2x Threshold" = "darkgreen",
-  "3x Threshold" = "darkgreen",
-  "4x Threshold" = "darkgreen"
+  "Threshold" = "darkgreen"
 )
 
 # Set category fill colours
@@ -320,12 +317,8 @@ example_plot <- ggplot(clim_cat, aes(x = t, y = temp)) +
   geom_line(aes(y = temp, col = "Temperature"), size = 0.6) +
   geom_line(aes(y = seas, col = "Climatology"), size = 0.7) +
   geom_line(aes(y = thresh, col = "Threshold"), size = 0.7) +
-  geom_line(aes(y = thresh_2x, col = "2x Threshold"), size = 0.7, linetype = "dashed") +
-  geom_line(aes(y = thresh_3x, col = "3x Threshold"), size = 0.7, linetype = "dotdash") +
-  geom_line(aes(y = thresh_4x, col = "4x Threshold"), size = 0.7, linetype = "dotted") +
   scale_colour_manual(name = NULL, values = lineColCat,
-                      limits = c("Temperature", "Climatology", "Threshold", 
-                                 "2x Threshold", "3x Threshold", "4x Threshold")) +
+                      limits = c("Temperature", "Climatology", "Threshold")) +
   scale_fill_manual(name = NULL, values = fillColCat, guide = FALSE) +
   scale_x_date(date_labels = "%b %Y", 
                limits = c(as.Date("2014-01-01"), as.Date("2017-01-01"))) +
@@ -334,8 +327,8 @@ example_plot <- ggplot(clim_cat, aes(x = t, y = temp)) +
   theme(legend.position = "top") +
   guides(
     colour = guide_legend(nrow = 1, override.aes = list(
-      linetype = c("solid", "solid", "solid", "dashed", "dotdash", "dotted"),
-      size = c(0.6, rep(0.7, 5)))))
+      linetype = c("solid", "solid", "solid"),
+      size = c(0.6, rep(0.7, 2)))))
 example_plot
 
 # Extract the legend and export 
@@ -381,12 +374,11 @@ for (site in site_ids) {
     geom_line(aes(y = temp, col = "Temperature"), size = 0.6) +
     geom_line(aes(y = seas, col = "Climatology"), size = 0.7) +
     geom_line(aes(y = thresh, col = "Threshold"), size = 0.7) +
-    geom_line(aes(y = thresh_2x, col = "2x Threshold"), size = 0.7, linetype = "dashed") +
-    geom_line(aes(y = thresh_3x, col = "3x Threshold"), size = 0.7, linetype = "dotdash") +
-    geom_line(aes(y = thresh_4x, col = "4x Threshold"), size = 0.7, linetype = "dotted") +
+    #geom_line(aes(y = thresh_2x, col = "2x Threshold"), size = 0.7, linetype = "dashed") +
+    #geom_line(aes(y = thresh_3x, col = "3x Threshold"), size = 0.7, linetype = "dotdash") +
+    #geom_line(aes(y = thresh_4x, col = "4x Threshold"), size = 0.7, linetype = "dotted") +
     scale_colour_manual(name = NULL, values = lineColCat,
-                        limits = c("Temperature", "Climatology", "Threshold", 
-                                   "2x Threshold", "3x Threshold", "4x Threshold")) +
+                        limits = c("Temperature", "Climatology", "Threshold")) +
     scale_fill_manual(name = NULL, values = fillColCat, guide = FALSE) +
     scale_x_date(date_labels = "%b %Y", 
                  limits = c(as.Date("2014-01-01"), as.Date("2017-01-01"))) +
@@ -397,8 +389,8 @@ for (site in site_ids) {
           axis.text.x = element_blank()) +
     guides(
       colour = guide_legend(nrow = 1, override.aes = list(
-        linetype = c("solid", "solid", "solid",  "dashed", "dotdash", "dotted"),
-        size = c(0.6, rep(0.7, 5)))))
+        linetype = c("solid", "solid", "solid"),
+        size = c(0.6, 0.7, .7))))
   
   # Save the plot
   ggsave(filename = paste0(output_folder, "heatwave_site_", site, ".png"),
