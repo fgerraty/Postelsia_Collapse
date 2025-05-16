@@ -36,7 +36,7 @@ stars_summary <- stars %>%
 # Part 2: Pisaster annual trends (all sites) #####
 ##################################################
 
-ggplot(stars_summary, aes(x=year, y=pisaster_biomass_g))+
+stars_all_sites <- ggplot(stars_summary, aes(x=year, y=pisaster_biomass_g))+
   annotate("rect", xmin = 2014, xmax = 2016, ymin = -Inf, ymax = Inf, 
            fill = "red", alpha = 0.2) +
   geom_point(color = "purple3")+
@@ -52,6 +52,9 @@ ggplot(stars_summary, aes(x=year, y=pisaster_biomass_g))+
         strip.text = element_text(face = "bold"),
         axis.title.x = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold"))
+
+ggsave("output/supplemental_figures/stars_all_sites.png", stars_all_sites, 
+       width = 8, height = 8, units = "in", dpi = 600)
 
 ##################
 # Part 3: GAM ####
@@ -153,6 +156,6 @@ stars_summary_plot_mini <- ggplot(stars_summary, aes(x=year))+
         axis.title.y = element_text(face = "bold")) 
 stars_summary_plot_mini
 
-ggsave("output/extra_figures/summary_figure/stars_summary.png", stars_summary_plot_mini, 
+ggsave("output/extra_figures/summary_figure/stars_summary.png", stars_summary_plot_mini,
        width = 6, height = 2.5, units = "in", dpi = 600)
 
