@@ -167,6 +167,47 @@ ggsave("output/extra_figures/MHW_category_plot.png", categorized_summary_plot,
        width = 7, height = 5, units = "in", dpi = 600)
 
 
+
+# PART 3A: All sites heatwave categorized plot ####
+
+all_site_MHW_summary_plot_df <- MHW_categorized_summary %>% 
+  select(-category) %>% 
+  #Rename + pivot for plotting
+  rename(Moderate = days_moderate, Strong = days_strong, 
+         Severe = days_severe, Extreme = days_extreme) %>% 
+  pivot_longer(cols = c("Moderate", "Strong", "Severe", "Extreme"),
+               names_to = "category", 
+               values_to = "duration") %>% 
+  #Remove site-years with too sparse water temp data
+  anti_join(too_little_data, by = c("site_id", "year")) %>% 
+  mutate(category = factor(category, levels = c( "Extreme","Severe","Strong","Moderate")),
+         site_id = factor(site_id, levels = c(site_ids)))
+
+
+all_site_summary_plot <- ggplot(all_site_MHW_summary_plot_df, aes(x=year, y=duration, fill = category))+
+  geom_bar(stat="identity")+
+  scale_fill_manual(values = MHW_colours)+
+  labs(x="Year", 
+       y="Marine Heatwave Days",
+       fill = "Intensity")+
+  facet_wrap(facets = "site_id")+
+  theme_few()+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1.1,hjust = 1),
+        panel.border = element_rect(linewidth = 2),
+        strip.text = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold"),
+        legend.title = element_text(face = "bold"),
+        legend.box.background = element_rect(linewidth = 1.2,
+                                             colour = "black"),
+        legend.position = "inside",
+        legend.position.inside = c(0.9, 0.09)
+  ) 
+all_site_summary_plot
+
+ggsave("output/supplemental_figures/MHW_category_all_sites.png", all_site_summary_plot,
+       width = 8, height = 8, units = "in", dpi = 600)
+
 #########################################
 # Part 4: Single Site Example Plot ######
 #########################################
