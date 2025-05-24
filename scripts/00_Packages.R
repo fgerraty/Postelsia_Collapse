@@ -8,6 +8,6 @@
 # Part 1: Load Packages --------------------------------------------------
 
 # Load packages
-packages <- c("tidyverse", "mgcv", "ggthemes", "maps", "mapdata", "cowplot", "ggpubr", "sf", "gt", "gratia", "heatwaveR", "lme4", "lmerTest", "biscale")
+packages <- c("tidyverse", "mgcv", "ggthemes", "maps", "mapdata", "cowplot", "ggpubr", "sf", "gt", "gratia", "heatwaveR", "lme4", "lmerTest", "biscale", "glmmTMB", "DHARMa", "lqmm")
 
 pacman::p_load(packages, character.only = TRUE); rm(packages)

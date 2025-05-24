@@ -21,7 +21,9 @@ mussels <- read_csv("data/processed/mussels.csv") %>%
   mutate(transect = dense_rank(x_transect)) %>%
   ungroup() %>% 
   #Assign period based on SSWD status
-  mutate(period = factor(period, levels = c("pre_ssw", "post_ssw")))
+  mutate(period = factor(period, levels = c("pre_ssw", "post_ssw")),
+         site_id = factor(site_id),
+         transect = factor(transect))
 
 cbs_surveys <- mussels %>% 
   group_by(site_id, period) %>% 
@@ -98,30 +100,6 @@ ggsave("output/extra_figures/mussel_heatmap_all_sites_legend.png", legend,
        width = 3.5, height = 3, units = "in", dpi = 600)
 
 
-############################################################
-# Part 3: Mussel Expansion Heatmap  (Example Site: 12) #####
-############################################################
-
-heatmap_df2 <- heatmap_df %>% 
-  filter(site_id == "Site 12")
-
-heatmap_example <- ggplot(heatmap_df2, aes(x=transect, y=location)) +
-  geom_tile(mapping = aes(color = bi_class, fill = bi_class), 
-            linewidth = 0.1, show.legend = FALSE)+
-  bi_scale_color(pal = "BlueYl", dim = 3, flip_axes = TRUE) +
-  bi_scale_fill(pal = "BlueYl", dim = 3, flip_axes = TRUE) +
-  scale_y_reverse()+
-  expand_limits(y=0)+
-  labs(x="Transect number", y="Distance from high to\nlow intertidal (m from baseline)")+
-  theme_few()+
-  theme(panel.border = element_rect(linewidth = 1.2),
-        axis.title = element_text(face = "bold"))
-
-
-ggsave("output/extra_figures/mussel_heatmap_example_site.png", heatmap_example, 
-       width = 8, height = 5, units = "in", dpi = 600)
-
-
 ###############################################
 # Part 3: Mussel Depth Distribution Plot  #####
 ###############################################
@@ -153,27 +131,22 @@ ggsave("output/extra_figures/mussel_tidal_height_distribution.png", mussel_tidal
        width = 4, height = 3, units = "in", dpi = 600)
 
 
-######################################################
-# Mussel Depth Distribution Analysis (WORKING!)  #####
-######################################################
+##########################################
+# Mussel Depth Distribution Analysis #####
+##########################################
 
-model_df <- mussels %>% 
-  mutate(tidal_elevation_shifted = tidal_elevation+2.301)
+th_mod_df <- mussels %>% 
+  mutate(combined_group = factor(interaction(site_id, transect)))
 
+th_model <- lqmm(fixed = tidal_elevation ~ period, 
+     random = ~1, 
+     group = combined_group,
+     tau = c(0.1,0.5,0.9),
+     data = th_mod_df,
+     control = lqmmControl(method = "df", UP_max_iter = 200)
+) 
 
-
-model <- glmmTMB(tidal_elevation_shifted ~ period + 
-                (1 | site_id/x_transect), 
-               data = model_df,
-               family = tweedie())
-summary(model)
-
-model_sim <- simulateResiduals(fittedModel = model, plot = F)
-plot(model_sim)
-testDispersion(model_sim)
-
-plot(model)
-
+summary(th_model)
 
 ##########################################
 # Part 3: Mussel Percent Cover Plot  #####
@@ -205,18 +178,23 @@ ggsave("output/extra_figures/mussel_percent_cover.png",
        width = 4, height = 2.8, units = "in", dpi = 600)
 
 
+##########################################
+# Mussel Percent Cover Analysis  #########
+##########################################
 
-
-
-pc_model <- glmmTMB(percent_cover/100 ~ period + 
-                   (1 | site_id), 
-                 data = mussel_percent_cover,
-                 family=beta_family(link="logit"))
+pc_model <- glmmTMB(percent_cover ~ period + 
+                      (1 | site_id), 
+                    data = mussel_percent_cover,
+                    family=gaussian())
 summary(pc_model)
 
+#Check residuals for normality
+shapiro.test(resid(pc_model))
 
-# Check h1d assumptions with DHARMa package
+# Check pc_model assumptions with DHARMa package
 pc_res = simulateResiduals(pc_model)
 plot(pc_res, rank = T)
 testDispersion(pc_res)
 plotResiduals(pc_res, mussel_percent_cover$site_id, xlab = "Site", main=NULL)
+
+
