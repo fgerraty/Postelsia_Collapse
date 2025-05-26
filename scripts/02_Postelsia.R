@@ -106,7 +106,7 @@ bar_plot <- ggplot(postelsia_summary, aes(x=site_id, y=percent_change,
     values = c("TRUE" = "#1F509A", "FALSE" = "#E38E49"))+
   coord_flip(ylim = c(-100, 95))+
   labs(x = "Site", 
-       y = "Percent change of\nP. palmaeformis density",
+       y = "Percent change of\nPostelsia density",
        fill = "")+
   theme_few()+
   theme(legend.position = "none",
