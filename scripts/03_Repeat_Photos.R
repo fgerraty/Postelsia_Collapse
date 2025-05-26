@@ -237,3 +237,15 @@ mussel_summary_plot
 
 ggsave("output/extra_figures/summary_figure/mussel_summary.png", mussel_summary_plot, 
        width = 6, height = 2.5, units = "in", dpi = 600)
+
+############################
+# Summary Stats ############
+############################
+
+print(panoramic_photos %>% 
+  group_by(period) %>% 
+  summarise(mean_postelsia = mean(postelsia_percent_of_max),
+            se_postelsia = sd(postelsia_percent_of_max)/sqrt(n()),
+            mean_mussel = mean(mussel_percent_of_max),
+            se_mussel = sd(mussel_percent_of_max)/sqrt(n())))
+
