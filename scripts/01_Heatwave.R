@@ -161,11 +161,11 @@ categorized_summary_plot <- ggplot(categorized_summary_plot_df, aes(x=year, y=me
         legend.box.background = element_rect(linewidth = 1.2,
                                              colour = "black"),
         legend.position = "inside",
-        legend.position.inside = c(0.9, 0.8)) 
+        legend.position.inside = c(0.86, 0.84)) 
 categorized_summary_plot
 
 ggsave("output/extra_figures/MHW_category_plot.png", categorized_summary_plot,
-       width = 7, height = 5, units = "in", dpi = 600)
+       width = 6.5, height = 6.5, units = "in", dpi = 600)
 
 
 # All sites heatwave categorized plot ####
@@ -320,7 +320,7 @@ example_plot <- ggplot(clim_cat, aes(x = t, y = temp)) +
   geom_rect(aes(xmin = as.Date("2014-05-01"), xmax = as.Date("2015-07-01"), 
                 ymin = 8.5, ymax = 18), 
             fill = NA,
-            color = "grey60",
+            color = "grey40",
             linetype = "dashed")+
 
   
@@ -335,7 +335,8 @@ example_plot <- ggplot(clim_cat, aes(x = t, y = temp)) +
         legend.position.inside = c(.72, .85),
         panel.border = element_rect(linewidth = 1.2,
                                        colour = "black"),
-        legend.box.background = element_rect(linewidth = 1, color = "black"))+
+        legend.box.background = element_rect(linewidth = 1, color = "black"),
+        axis.title.y = element_text(face = "bold"))+
   guides(
     colour = guide_legend(nrow = 1, override.aes = list(
       linetype = c("solid", "solid", "solid"),
@@ -395,7 +396,8 @@ example_plot_2 <- ggplot(clim_cat, aes(x = t, y = temp)) +
         panel.border = element_rect(linewidth = 1.2,
                                     colour = "black"),
         legend.background = element_rect(linewidth = .7,
-                                    colour = "black"))
+                                    colour = "black"),
+        axis.title.y = element_text(face = "bold"))
 example_plot_2
 
 
@@ -404,85 +406,10 @@ ggsave("output/extra_figures/heatwave_panel_b.png", example_plot_2,
 
 
 #################################################
-# Part 5: Site-Level Heatwave Visualization  ####
+# Site-Level Heatwave Visualization  ############
 #################################################
 
-# Part 5A: Single site example (Used to extract legend) ####
-
-
-
-# We will use site 5 as an example
-
-# Create category breaks and select slice of data.frame
-clim_cat <- events$"5"$climatology %>%
-  mutate(diff = thresh - seas,
-         thresh_2x = thresh + diff,
-         thresh_3x = thresh_2x + diff,
-         thresh_4x = thresh_3x + diff) %>% 
-  filter(t > as.Date("2013-01-01") & t < "2018-01-01")
-
-# Set line colours
-lineColCat <- c(
-  "Temperature" = "black",
-  "Climatology" = "blue",
-  "Threshold" = "darkgreen"
-)
-
-# Set category fill colours
-fillColCat <- c(
-  "Moderate" = "#ffc866",
-  "Strong" = "#ff6900",
-  "Severe" = "#9e0000",
-  "Extreme" = "#2d0000"
-)
-
-# Create plot
-example_plot <- ggplot(clim_cat, aes(x = t, y = temp)) +
-  geom_flame(aes(y2 = thresh, fill = "Moderate")) +
-  geom_flame(aes(y2 = thresh_2x, fill = "Strong")) +
-  geom_flame(aes(y2 = thresh_3x, fill = "Severe")) +
-  geom_flame(aes(y2 = thresh_4x, fill = "Extreme")) +
-  geom_line(aes(y = temp, col = "Temperature"), size = 0.6) +
-  geom_line(aes(y = seas, col = "Climatology"), size = 0.7) +
-  geom_line(aes(y = thresh, col = "Threshold"), size = 0.7) +
-  scale_colour_manual(name = NULL, values = lineColCat,
-                      limits = c("Temperature", "Climatology", "Threshold")) +
-  scale_fill_manual(name = NULL, values = fillColCat, guide = FALSE) +
-  scale_x_date(date_labels = "%b %Y", 
-               limits = c(as.Date("2014-01-01"), as.Date("2017-01-01"))) +
-  labs(y = "Temperature (°C)", x = NULL) +
-  theme_few() +
-  theme(legend.position = "top") +
-  guides(
-    colour = guide_legend(nrow = 1, override.aes = list(
-      linetype = c("solid", "solid", "solid"),
-      size = c(0.6, rep(0.7, 2)))))
-example_plot
-
-# Extract the legend and export 
-
-heatwave_legend <- get_legend(example_plot) %>% 
-  as_ggplot()
-
-heatwave_legend
-
-ggsave("output/extra_figures/heatwave/legend.png", heatwave_legend, 
-       width = 7, height = 1, units = "in")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Part 5B: Iterate through all sites ##### 
+# Iterate through all sites to visualize MHW dynamics ##### 
 
 # Define the folder for saving figures
 output_folder <- "output/extra_figures/heatwave/"
