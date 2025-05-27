@@ -5,20 +5,21 @@
 # Script 01: Marine Heatwave Detection + Visualization ###################
 #-------------------------------------------------------------------------
 
-######################################
-# Part 1: Import and prepare data ####
-######################################
+##############################
+# Import and prepare data ####
+##############################
+
 temperature <- read_csv("data/processed/temperature.csv") %>% 
   rename(t = date,
          temp = mean) %>% 
   mutate(site_id = factor(site_id))
 
 
-######################################
-# Part 2: Detect Marine Heatwaves ####
-######################################
+##############################
+# Detect Marine Heatwaves ####
+##############################
 
-# Part 2A: Create named list of temperature data for each site ####
+# Create named list of temperature data for each site ####
 
 # Define site IDs
 site_ids <- c("1", "2", "3", "5", "8", "12", "13", "14", "16", "17")
@@ -32,7 +33,7 @@ SST_site <- lapply(site_ids, function(current_site) {
 names(SST_site) <- site_ids  # Assign names to the list
 
 
-# Part 2B: Generate site-level climatology data ####
+# Generate site-level climatology data ####
 
 # Calculate climatology for each site
 clim_site <- lapply(names(SST_site), function(site) {
@@ -45,7 +46,7 @@ clim_site <- lapply(names(SST_site), function(site) {
 names(clim_site) <- names(SST_site)  # Assign names to the list
 
 
-# Part 2C: Detect MHW events for all sites ####
+# Detect MHW events for all sites ####
 
 # Detect MHWs from each site's climatology data
 events <- lapply(names(clim_site), function(site) {
@@ -54,7 +55,7 @@ events <- lapply(names(clim_site), function(site) {
 names(events) <- names(clim_site)  # Assign names to the list
 
 
-# Part 2D. Summarize marine heatwave (MHW) days per year for each site ####
+# Summarize marine heatwave (MHW) days per year for each site ####
 
 # Extract and summarize MHW days from the "climatology" sub-list
 MHW_days_per_site <- lapply(names(events), function(site) {
@@ -78,7 +79,7 @@ too_little_data <- MHW_summary %>%
   select(site_id, year)
 
 
-#Part 2E: Summarize marine heatwave days in each category per year for each site ####
+# Summarize marine heatwave days in each category per year for each site ####
 
 # Categorize MHW events for all sites
 MHW_categories <- lapply(names(events), function(site) {
@@ -111,11 +112,11 @@ names(MHW_days_categorized) <- names(events)  # Assign names to the list
 MHW_categorized_summary <- bind_rows(MHW_days_categorized)
 
 
-#########################################
-# Part 3: Summarize Marine Heatwaves ####
-#########################################
+#################################
+# Summarize Marine Heatwaves ####
+#################################
 
-# PART 3A: Categorized heatwave summary plot ####
+# Categorized heatwave summary plot ####
 
 categorized_summary_plot_df <- MHW_categorized_summary %>% 
   select(-category) %>% 
@@ -167,8 +168,7 @@ ggsave("output/extra_figures/MHW_category_plot.png", categorized_summary_plot,
        width = 7, height = 5, units = "in", dpi = 600)
 
 
-
-# PART 3A: All sites heatwave categorized plot ####
+# All sites heatwave categorized plot ####
 
 all_site_MHW_summary_plot_df <- MHW_categorized_summary %>% 
   select(-category) %>% 
@@ -201,61 +201,20 @@ all_site_summary_plot <- ggplot(all_site_MHW_summary_plot_df, aes(x=year, y=dura
         legend.box.background = element_rect(linewidth = 1.2,
                                              colour = "black"),
         legend.position = "inside",
-        legend.position.inside = c(0.9, 0.09)
+        legend.position.inside = c(0.85, 0.1)
   ) 
 all_site_summary_plot
 
 ggsave("output/supplemental_figures/MHW_category_all_sites.png", all_site_summary_plot,
        width = 8, height = 8, units = "in", dpi = 600)
 
-#########################################
-# Part 4: Single Site Example Plot ######
-#########################################
-
-# We will use site 5 as an example
-
-# Set line colours
-lineColCat <- c(
-  "Temperature" = "black",
-  "Climatology" = "blue",
-  "Threshold" = "darkgreen",
-  "2x Threshold" = "darkgreen",
-  "3x Threshold" = "darkgreen",
-  "4x Threshold" = "darkgreen"
-)
-
-#Plot
-single_site_example <- event_line(events$"5", category = TRUE, spread = 180,
-           start_date = "2011-01-01", end_date = "2016-12-31")+
-  theme_few()+
-  labs(y = expression(bold("Temperature " ( degree~C))),
-       x="Date")+
-  scale_colour_manual(name = NULL, values = lineColCat,
-                      limits = c("Temperature", "Climatology", "Threshold", 
-                                 "2x Threshold", "3x Threshold", "4x Threshold")) +
-  theme(panel.border = element_rect(linewidth = 2),
-        strip.text = element_text(face = "bold"),
-        axis.title.x = element_text(face = "bold"),
-        axis.title.y = element_text(face = "bold"),
-        legend.title = element_text(face = "bold"),
-        legend.box.background = element_rect(linewidth = 1.2,
-                                             colour = "black"),
-        legend.position = "inside",
-        legend.position.inside = c(0.88, 0.8)) 
-single_site_example
-
-ggsave("output/extra_figures/MHW_example.png", single_site_example,
-       width = 7, height = 5, units = "in", dpi = 600)
-
-
 
 ##################
-# Part 4: GAM ####
+# GAM ############
 ##################
 
 gam_heatwave_data <- MHW_summary %>% 
   filter(na_count < 25)
-
 
 set.seed(99)
 
@@ -296,9 +255,9 @@ gam_predictions <- data.frame(
     upper = fit + 1.96 * se)
 
 
-####################################
-# Part 4: Heatwave Summary Plot ####
-####################################
+############################
+# Heatwave Summary Plot ####
+############################
 
 heatwave_summary_plot <- ggplot(MHW_summary, aes(x=year)) +
   geom_point(aes(y=mhw_days),color = "red")+
@@ -320,14 +279,142 @@ ggsave("output/extra_figures/summary_figure/heatwave_summary.png", heatwave_summ
        width = 6, height = 2.5, units = "in", dpi = 600)
 
 
+#################################
+# Single Site Example Plot ######
+#################################
+
+# Longer-term example plot #####
+
+# Create category breaks and select slice of data.frame
+clim_cat <- events$"5"$climatology %>%
+  mutate(diff = thresh - seas,
+         thresh_2x = thresh + diff,
+         thresh_3x = thresh_2x + diff,
+         thresh_4x = thresh_3x + diff) %>% 
+  filter(t > as.Date("2013-01-01") & t < "2018-01-01")
+
+# Set line colours
+lineColCat <- c(
+  "Temperature" = "black",
+  "Climatology" = "blue",
+  "Threshold" = "darkgreen"
+)
+
+# Set category fill colours
+fillColCat <- c(
+  "Moderate" = "#ffc866",
+  "Strong" = "#ff6900",
+  "Severe" = "#9e0000",
+  "Extreme" = "#2d0000"
+)
+
+# Create plot
+example_plot <- ggplot(clim_cat, aes(x = t, y = temp)) +
+  geom_flame(aes(y2 = thresh, fill = "Moderate")) +
+  geom_flame(aes(y2 = thresh_2x, fill = "Strong")) +
+  geom_flame(aes(y2 = thresh_3x, fill = "Severe")) +
+  geom_flame(aes(y2 = thresh_4x, fill = "Extreme")) +
+  geom_line(aes(y = temp, col = "Temperature"), size = 0.6) +
+  geom_line(aes(y = seas, col = "Climatology"), size = 0.7) +
+  geom_line(aes(y = thresh, col = "Threshold"), size = 0.7) +
+  geom_rect(aes(xmin = as.Date("2014-05-01"), xmax = as.Date("2015-07-01"), 
+                ymin = 8.5, ymax = 18), 
+            fill = NA,
+            color = "grey60",
+            linetype = "dashed")+
+
+  
+  scale_colour_manual(name = NULL, values = lineColCat,
+                      limits = c("Temperature", "Climatology", "Threshold")) +
+  scale_fill_manual(name = NULL, values = fillColCat, guide = FALSE) +
+  scale_x_date(date_labels = "%b %Y", 
+               limits = c(as.Date("2014-01-01"), as.Date("2017-01-01"))) +
+  labs(y = "Temperature (°C)", x = NULL) +
+  theme_few() +
+  theme(legend.position = "inside",
+        legend.position.inside = c(.72, .85),
+        panel.border = element_rect(linewidth = 1.2,
+                                       colour = "black"),
+        legend.box.background = element_rect(linewidth = 1, color = "black"))+
+  guides(
+    colour = guide_legend(nrow = 1, override.aes = list(
+      linetype = c("solid", "solid", "solid"),
+      size = c(0.6, rep(0.7, 2)))))
+example_plot
+
+ggsave("output/extra_figures/heatwave_panel_a.png", example_plot, 
+       width = 7, height = 2.5, units = "in")
+
+# Extract the legend and export for later
+
+heatwave_legend <- get_legend(example_plot) %>% 
+  as_ggplot()
+
+heatwave_legend
+
+ggsave("output/extra_figures/heatwave/legend.png", heatwave_legend, 
+       width = 7, height = 1, units = "in")
+
+
+# Shorter-term example plot #####
+
+
+# Set line colours
+lineColCat2 <- c(
+  "Temperature" = "black",
+  "Climatology" = "blue",
+  "Threshold" = "darkgreen",
+  "2x Threshold" = "darkgreen",
+  "3x Threshold" = "darkgreen",
+  "4x Threshold" = "darkgreen"
+)
+
+
+# Create plot
+example_plot_2 <- ggplot(clim_cat, aes(x = t, y = temp)) +
+  geom_flame(aes(y2 = thresh, fill = "Moderate")) +
+  geom_flame(aes(y2 = thresh_2x, fill = "Strong")) +
+  geom_flame(aes(y2 = thresh_3x, fill = "Severe")) +
+  geom_flame(aes(y2 = thresh_4x, fill = "Extreme")) +
+  geom_line(aes(y = temp, col = "Temperature"), size = 0.6) +
+  geom_line(aes(y = seas, col = "Climatology"), size = 0.7) +
+  geom_line(aes(y = thresh, col = "Threshold"), size = 0.7) +
+  geom_line(aes(y = thresh_2x, col = "2x Threshold"), size = 0.7, linetype = "dashed") +
+  geom_line(aes(y = thresh_3x, col = "3x Threshold"), size = 0.7, linetype = "dotdash") +
+  geom_line(aes(y = thresh_4x, col = "4x Threshold"), size = 0.7, linetype = "dotted") +
+  scale_colour_manual(name = NULL, values = lineColCat2,
+                      limits = c("Temperature", "Climatology", "Threshold", "2x Threshold", "3x Threshold", "4x Threshold")) +
+  scale_fill_manual(name = NULL, values = fillColCat, guide = FALSE) +
+  scale_x_date(date_labels = "%b %Y", 
+               limits = c(as.Date("2014-05-01"), as.Date("2015-07-01"))) +
+  scale_y_continuous(limits = c(9, 19))+
+  labs(y = "Temperature (°C)", x = NULL) +
+  theme_few() +
+  theme(legend.position = "inside",
+        legend.position.inside = c(.88, .75),
+        panel.border = element_rect(linewidth = 1.2,
+                                    colour = "black"),
+        legend.background = element_rect(linewidth = .7,
+                                    colour = "black"))
+example_plot_2
+
+
+ggsave("output/extra_figures/heatwave_panel_b.png", example_plot_2,
+       width = 7, height = 4, units = "in", dpi = 600)
+
+
 #################################################
 # Part 5: Site-Level Heatwave Visualization  ####
 #################################################
 
 # Part 5A: Single site example (Used to extract legend) ####
 
+
+
+# We will use site 5 as an example
+
 # Create category breaks and select slice of data.frame
-clim_cat <- events$"1"$climatology %>%
+clim_cat <- events$"5"$climatology %>%
   mutate(diff = thresh - seas,
          thresh_2x = thresh + diff,
          thresh_3x = thresh_2x + diff,
@@ -381,6 +468,17 @@ heatwave_legend
 
 ggsave("output/extra_figures/heatwave/legend.png", heatwave_legend, 
        width = 7, height = 1, units = "in")
+
+
+
+
+
+
+
+
+
+
+
 
 
 

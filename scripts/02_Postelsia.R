@@ -210,7 +210,6 @@ postelsia_gam <- gam(
 summary(postelsia_gam)
 
 # Interrogate GAM model
-par(mfrow = c(2, 2)) # Set up plotting grid
 gam.check(postelsia_gam)
 k.check(postelsia_gam, subsample=5000, n.rep=400)
 
