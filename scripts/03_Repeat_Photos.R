@@ -220,7 +220,7 @@ mussel_summary_plot <- ggplot(filter(panoramic_photos_long, species == "mussel")
             color = "darkblue", linewidth = 1)+
   geom_ribbon(data = mussel_gam_predictions, aes(ymin = lower, ymax = upper),
               fill = "darkblue", alpha = 0.4) +
-  labs(x = "", y= "Mussel Abundance\n(% of maximum)", fill = "Species", color = "Species")+
+  labs(x = "", y= "Mussel abundance\n(% of maximum)", fill = "Species", color = "Species")+
   scale_fill_manual(values = c("darkblue", "olivedrab4"),
                     labels = c("Mussel", "Postelsia"))+
   scale_color_manual(values = c("darkblue", "olivedrab4"),

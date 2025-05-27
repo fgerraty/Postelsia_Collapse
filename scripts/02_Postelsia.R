@@ -275,12 +275,13 @@ postelsia_summary_plot_mini <- ggplot(postelsia_annual_summary, aes(x=year))+
             color = "olivedrab4", linewidth = 1)+
   geom_ribbon(data = gam_predictions, aes(ymin = lower, ymax = upper),
               fill = "olivedrab4", alpha = 0.4) +
-  labs(y = "P. palmaeformis density\n(% of maximum)",
-       x = "")+
+  labs(y = "Postelsia density\n(% of maximum)",
+       x = "Year")+
   theme_few()+
-  theme(axis.text.x = element_blank(),
+  theme( axis.text.x = element_text(angle = 45, vjust = 1.1,hjust = 1),
         panel.border = element_rect(linewidth = 2),
         strip.text = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold")) 
 postelsia_summary_plot_mini
 

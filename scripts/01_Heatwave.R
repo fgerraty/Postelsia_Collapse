@@ -266,12 +266,11 @@ heatwave_summary_plot <- ggplot(MHW_summary, aes(x=year)) +
   geom_ribbon(data = gam_predictions, aes(ymin = lower, ymax = upper),
               fill = "red", alpha = 0.4) +
   coord_cartesian(ylim = c(0,150), xlim = c(2000,2024))+
-  labs(x="Year", y="Marine Heatwave Index\n(# Days / Year)")+
+  labs(x="", y="Marine heatwave index\n(# days / year)")+
   theme_few()+
-  theme(axis.text.x = element_text(angle = 45, vjust = 1.1,hjust = 1),
+  theme(axis.text.x = element_blank(),
         panel.border = element_rect(linewidth = 2),
         strip.text = element_text(face = "bold"),
-        axis.title.x = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold")) 
 heatwave_summary_plot
 

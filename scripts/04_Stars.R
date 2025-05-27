@@ -147,7 +147,7 @@ stars_summary_plot_mini <- ggplot(stars_summary, aes(x=year))+
             color = "purple3", linewidth = 1)+
   geom_ribbon(data = gam_predictions, aes(ymin = lower, ymax = upper),
               fill = "purple1", alpha = 0.4) +
-  labs(y = "P. ochraceus biomass\n(% of maximum)",
+  labs(y = "Pisaster biomass\n(% of maximum)",
        x = "")+
   theme_few()+
   theme(axis.text.x = element_blank(),
