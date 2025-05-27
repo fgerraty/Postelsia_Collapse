@@ -36,15 +36,18 @@ stars_summary <- stars %>%
 # Part 2: Pisaster annual trends (all sites) #####
 ##################################################
 
-stars_all_sites <- ggplot(stars_summary, aes(x=year, y=pisaster_biomass_g))+
+stars_all_sites <- ggplot(stars_summary, aes(x=year, y=pisaster_biomass_g/1000))+
   annotate("rect", xmin = 2014, xmax = 2016, ymin = -Inf, ymax = Inf, 
            fill = "red", alpha = 0.2) +
   geom_point(color = "purple3")+
+  # Add a vertical dashed line at 2013 for SSWD onset
+  geom_vline(xintercept = 2013, linetype = "dashed", 
+             color = "red", linewidth = 1) +
   facet_wrap(facets = "site_id",
              scales = "free_y"
            )+
   scale_y_continuous(limits = c(0, NA))+
-  labs(y = expression(bold(P. ~ ochraceous ~ biomass ~ (kg))),
+  labs(y = expression(bold(Pisaster ~ biomass ~ (kg))),
        x = "Survey year")+
   theme_few()+
   theme(axis.text.x = element_text(angle = 45, vjust = 1.1,hjust = 1),
@@ -52,6 +55,7 @@ stars_all_sites <- ggplot(stars_summary, aes(x=year, y=pisaster_biomass_g))+
         strip.text = element_text(face = "bold"),
         axis.title.x = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold"))
+stars_all_sites
 
 ggsave("output/supplemental_figures/stars_all_sites.png", stars_all_sites, 
        width = 8, height = 8, units = "in", dpi = 600)

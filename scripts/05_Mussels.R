@@ -162,7 +162,7 @@ mussel_percent_cover_plot <- ggplot(mussel_percent_cover, aes(x=percent_cover, f
                width = 0.0015, alpha = 0.7, outlier.shape = NA) +
   scale_color_manual(values = c("#d8be02", "#0088d9"), labels = c("Pre-SSWD", "Post-SSWD"))+
   scale_fill_manual(values = c("#d8be02", "#0088d9"), labels = c("Pre-SSWD", "Post-SSWD"))+
-  labs(y="Frequency", x="Percent Cover", 
+  labs(y="Frequency", x="Percent cover", 
        fill = "Period", color = "Period")+
   theme_few()+
   theme(panel.border = element_rect(linewidth = 1.2),

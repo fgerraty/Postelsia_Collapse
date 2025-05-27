@@ -128,7 +128,7 @@ density_vs_all_years <- ggplot(postelsia_summary, aes(x=n_years_total, y=percent
     values = c("TRUE" = "#1F509A", "FALSE" = "#E38E49"))+
   scale_x_continuous(limits = c(0,25))+
   scale_y_continuous(limits = c(-100,100))+
-  labs(y = "Percent change of\nP. palmaeformis density", x = "Total number of survey years")+
+  labs(y = "Percent change of\nPostelsia density", x = "Total number of survey years")+
   theme_few()+
   theme(panel.border = element_rect(linewidth = 2),
         legend.position = "none")
@@ -142,7 +142,7 @@ density_vs_pre_years <- ggplot(postelsia_summary, aes(x=n_years_pre_MHW, y=perce
     values = c("TRUE" = "#1F509A", "FALSE" = "#E38E49"))+
   scale_x_continuous(limits = c(0,16))+
   scale_y_continuous(limits = c(-100,100))+
-  labs(y = "Percent change of\nP. palmaeformis density", x = "Number of survey years pre-MHW")+
+  labs(y = "Percent change of\nPostelsia density", x = "Number of survey years pre-MHW")+
   theme_few()+
   theme(panel.border = element_rect(linewidth = 2),
         legend.position = "none")
