@@ -168,22 +168,13 @@ ggsave("output/extra_figures/summary_figure/stars_summary.png", stars_summary_pl
 # Part 5: Summary Stats for Results ####
 ########################################
 
-summary_stats1 <- stars_summary %>% 
-  mutate(period = case_when(year <= 2013 ~ "Pre-SSWD",
-                            year >2013 & year <= 2016 ~ "SSWD",
-                            year > 2016 ~ "Post-SSWD"),
-         period = factor(period, levels = c("Pre-SSWD","SSWD","Post-SSWD"))) 
-
-
-summary_stats2 <- summary_stats1 %>% 
+stars_summary %>% 
+  mutate(period = case_when(
+    year >= 2010 & year < 2013 ~ "Pre-SSWD" ,
+    year > 2013 & year <= 2016 ~ "SSWD" ,
+    year > 2016 ~ "Post-SSWD")) %>% 
+  drop_na(period) %>% 
   group_by(period) %>% 
-  summarise(mean_percent_of_max = mean(percent_of_max),
-            se_percent_of_max = sd(percent_of_max)/sqrt(n())) 
+  summarise(mean = mean(percent_of_max),
+            se = sd(percent_of_max)/sqrt(n()))
 
-#Plot? 
-ggplot(summary_stats2, aes(x=period, y=mean_percent_of_max))+
-  geom_jitter(data = summary_stats1, aes(y=percent_of_max), width = .2)+
-  geom_point(size = 4, color = "purple")+
-  geom_linerange(aes(ymin = mean_percent_of_max - se_percent_of_max,
-                     ymax = mean_percent_of_max + se_percent_of_max),
-                 linewidth = 2, color = "purple")
