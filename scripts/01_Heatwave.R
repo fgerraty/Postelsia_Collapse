@@ -458,3 +458,66 @@ for (site in site_ids) {
   ggsave(filename = paste0(output_folder, "heatwave_site_", site, ".png"),
          plot = site_plot, width = 5, height = 2.5, dpi = 600)
 }
+
+
+#################################################
+# Site-Level Heatwave Summary Table  ############
+#################################################
+
+MHW_summary_table_gt <- temperature %>% 
+  group_by(site_id) %>% 
+  #Basic temp summaries
+  summarise(temperature_days = n(), #number of days with data
+            temperature_years = length(unique(year)), #number of years with data
+            max_temp = max(temp), #max temp
+            n_days_above_18c = sum(temp>18), #number of days above 18c
+            n_days_above_15c = sum(temp>15)) %>%  #number of days above 15c
+  #Join with dataframe in which MHWs were detected and summarized
+  left_join(MHW_categorized_summary %>% 
+              group_by(site_id) %>% 
+              #Calculate number of days in each MHW category
+              summarise(days_moderate = sum(days_moderate),
+                        days_strong = sum(days_strong),
+                        days_severe = sum(days_severe),
+                        days_extreme = sum(days_extreme)), 
+            by = join_by(site_id)) %>% 
+  #Turn into proportions
+  mutate(prop_days_moderate = days_moderate/temperature_days,
+         prop_days_strong = days_strong/temperature_days,
+         prop_days_severe = days_severe/temperature_days,
+         prop_days_extreme = days_extreme/temperature_days) %>% 
+  #Make pretty for gt table
+  mutate(
+    moderate = paste0(days_moderate, " (", round(100 * prop_days_moderate, 2), "%)"),
+    strong   = paste0(days_strong, " (", round(100 * prop_days_strong, 2), "%)"),
+    severe   = paste0(days_severe, " (", round(100 * prop_days_severe, 2), "%)"),
+    extreme  = paste0(days_extreme, " (", round(100 * prop_days_extreme, 2), "%)")
+  ) %>% 
+  select(site_id, temperature_days, temperature_years, max_temp, 
+         n_days_above_15c, n_days_above_18c,
+         moderate, strong, severe, extreme) %>% 
+  gt()
+
+
+MHW_table <- 
+  MHW_summary_table_gt |>
+  tab_header(
+    title = "Site-Level Summary of Water Temperature Data"
+  ) |>
+  cols_label(site_id = md("**Site**"),
+             temperature_days = md("**# days with water temperature data**"),
+             temperature_years = md("**# years with water temperature data**"),
+             max_temp = md("**Maximum recorded water temperature**"),
+             n_days_above_15c = md("**# days with water temperature exceeding 15 C**"),
+             n_days_above_18c = md("**# days with water temperature exceeding 18 C**"),
+             moderate = md("**# days classified as moderate MHW (% of days)**"),
+             strong = md("**# days classified as strong MHW (% of days)**"),
+             severe = md("**# days classified as severe MHW (% of days)**"),
+             extreme = md("**# days classified as extreme MHW(% of days)**"))|>
+  cols_align(
+    align = "left")
+
+MHW_table
+
+#Export high-quality table
+gtsave(MHW_table, "output/supplemental_figures/MHW_summary_table.pdf")

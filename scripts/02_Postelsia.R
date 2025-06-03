@@ -86,7 +86,10 @@ postelsia_table <-
              n_years_post_MHW = md("**# survey years post-MHW**"),
              pre_MHW_density = md("**Density pre-MHW (+/- SE)**"),
              post_MHW_density = md("**Density post-MHW (+/- SE)**"),
-             percent_change = md("**Percent change in density**"))
+             percent_change = md("**Percent change in density**"))|>
+  cols_align(
+    align = "left")
+
 postelsia_table
 
 #Export high-quality table
