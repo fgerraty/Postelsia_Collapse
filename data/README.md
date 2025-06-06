@@ -77,3 +77,39 @@ The "temperature" dataset ([data/processed/temperature.csv](https://github.com/f
 -   **mean** - mean water temperature (ºC) on survey day
 
 -   **stderr** - standard error (ºC) of water temperature measurements on survey day.
+
+### "Mussels" Dataset
+
+The "mussels" dataset ([data/processed/mussels.csv](https://github.com/fgerraty/Postelsia_Collapse/blob/main/data/processed/mussels.csv)) contains mussel occurrence data by plot from [Multi-Agency Rocky Intertidal Network](#0) Coastal Biodiversity Servey (CBS) grids. Each row in this dataset constitutes a single mussel detection at any layer. The dataset contains the following columns:
+
+-   **site_id** - unique number code for each site
+
+-   **year** - year in which CBS survey was conducted (Range: 2001-2024)
+
+-   **month** - month in which CBS survey was conducted (Range: 1-12)
+
+-   **day** - day of month in which CBS survey was conducted (Range: 1-31)
+
+-   **x_transect** - A number representing one of 11 parallel meter tapes (transects) within the CBS survey area. Transects stem from a baseline, which is established along shore in the high zone of a site area. The transect number is determined by the meter mark on the baseline from where the transect begins. (Range: 0-30).
+
+-   **location** - The location (in meters) along the transect at which the mussel was observed.
+
+-   **species_lump** - Lumped species name. Note that only *M. californianus* mussels were included in analyses, despite that other *Mytilus* species are included in this dataset.
+
+-   **pc_point_type** - Designates whether full_points (with layering, host/epi relationships, and nearest species information) or first_points (only the top point and/or mussels on point if a layer was over a mussel) was done during this survey. Note that mussel occurrence is documented for both point sampling types.
+
+-   **tidal_elevation** - The calculated height in meters above Mean Low Low Water of the referenced location. These calculations are made by kriging the data in Surfer 8. See more information here: <https://support.goldensoftware.com/hc/en-us/articles/231348728-A-Basic-Understanding-of-Surfer-Gridding-Methods-Part-1#kriging>
+
+### "Mussel Percent Cover" Dataset
+
+The "mussel percent cover" dataset ([data/processed/mussels_percent_cover.csv](https://github.com/fgerraty/Postelsia_Collapse/blob/main/data/processed/mussel_percent_cover.csv)) contains mussel percent cover data by survey across the entire [Multi-Agency Rocky Intertidal Network](#0) Coastal Biodiversity Servey (CBS) grid. Each row in this dataset constitutes a single CBS survey. The dataset contains the following columns:
+
+-   **site_id** - unique number code for each site
+
+-   **year** - year in which CBS survey was conducted (Range: 2001-2024)
+
+-   **number_of_transect_locations** - number of points in CBS survey grid.
+
+-   **count** - number of points in CBS survey grid at which mussels were detected.
+
+-   **percent_cover** - percent cover of mussels across the CBS survey grid (count / number_of_transect_locations \* 100)
