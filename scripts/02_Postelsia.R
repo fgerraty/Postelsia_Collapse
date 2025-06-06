@@ -183,7 +183,7 @@ all_site_data <- ggplot(postelsia_annual_summary, aes(x=year, y=density))+
   geom_point(size = 2, alpha = .85, color = "olivedrab4")+
   facet_wrap(facets = "site_id", scales = "free_y", ncol = 4)+
   scale_y_continuous(limits = c(0, NA))+
-  labs(y = expression(bold(P. ~ palmaeformis ~ density ~ (individuals / m^2))),
+  labs(y = expression(bold(Postelsia ~ density ~ (individuals / m^2))),
        x = "Survey year")+
   theme_few()+
   theme(axis.text.x = element_text(angle = 45, vjust = 1.1,hjust = 1),
