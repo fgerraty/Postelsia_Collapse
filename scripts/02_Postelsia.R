@@ -28,7 +28,10 @@ postelsia_annual_summary <- postelsia %>%
     site_id %in% c(1:12) ~ season == "Summer",
     site_id %in% c(13:17) ~ season == "Spring")) %>% 
   #Determine pre-post MHW period 
-  mutate(period = ifelse(year < 2015, "pre_MHW", "post_MHW")) %>% 
+  mutate(period = if_else(year < 2015, "pre_MHW","post_MHW"),
+        period2 = case_when(year < 2015 ~ "pre_MHW", 
+                            year >=2015 & year<2017 ~ "during_MHW", 
+                            year > 2016 ~ "post_MHW")) %>% 
   group_by(site_id) %>%
   mutate(percent_of_max = (density / max(density, na.rm = TRUE)) * 100) %>%
   ungroup() %>% 
@@ -205,7 +208,7 @@ set.seed(99)
 
 #Fit GAM
 postelsia_gam <- gam(
-  percent_of_max ~ s(year, k = 15) + #Year as smooth predictor
+  percent_of_max ~ s(year, k = 13) + #Year as smooth predictor
     s(site_id, bs = "re"), #Site as a random effect
   data = postelsia_annual_summary,
   method = "REML") # Use restricted maximum likelihood for smoother estimation

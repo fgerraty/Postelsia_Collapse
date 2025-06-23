@@ -28,9 +28,11 @@ stars_summary <- stars %>%
   mutate(percent_of_max = (pisaster_biomass_g / max(pisaster_biomass_g, na.rm = TRUE)) * 100) %>%
   ungroup() %>% 
   #Turn site_id into a factor
-  mutate(site_id = factor(site_id))
-
-
+  mutate(site_id = factor(site_id),
+         period = case_when(year < 2013 ~ "pre_SSWD", 
+                      year >=2013 & year<2017 ~ "during_SSWD", 
+                      year > 2016 ~ "post_SSWD"))
+  
 
 ##################################################
 # Part 2: Pisaster annual trends (all sites) #####
