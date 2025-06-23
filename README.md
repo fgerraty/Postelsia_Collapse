@@ -18,7 +18,7 @@ There are 6 R scripts associated with this repository run all console and data p
 
 -   **04_Stars.R** conducts analyses and visualizations with long-term monitoring data from MARINe sea star plots.
 
--   **05_Mussels.R** conducts analyses and visualizations of mussel dynamics with long-term monitoring data from MARINe Coastal Biodiversity Survey data.
+-   **05_Mussels.R** conducts analyses and visualizations of mussel dynamics with long-term monitoring data from MARINe Coastal Biodiversity Surveys.
 
 *Note:* *Due to the conservation status of Postelsia palmaeformis, we removed all site-specific metadata from all publicly-available data and code. Because of this, R scripts to produce the map figure (Figure 2B) are not published in this repository*.
 
