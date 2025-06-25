@@ -30,7 +30,7 @@ stars_summary <- stars %>%
   #Turn site_id into a factor
   mutate(site_id = factor(site_id),
          period = case_when(year < 2013 ~ "pre_SSWD", 
-                      year >=2013 & year<2017 ~ "during_SSWD", 
+                      year >= 2013 & year < 2017 ~ "during_SSWD", 
                       year > 2016 ~ "post_SSWD"))
   
 
@@ -70,7 +70,7 @@ set.seed(99)
 
 #Fit GAM
 star_gam <- gam(
-  percent_of_max ~ s(year, k = 10) + #Year as smooth predictor
+  percent_of_max ~ s(year, k = 6) + #Year as smooth predictor
     s(site_id, bs = "re"), #Site as a random effect
   data = stars_summary,
   method = "REML") # Use restricted maximum likelihood for smoother estimation
@@ -170,8 +170,10 @@ ggsave("output/extra_figures/summary_figure/stars_summary.png", stars_summary_pl
 # Part 5: Summary Stats for Results ####
 ########################################
 
+#Raw summary 
 stars_summary %>% 
-  mutate(period = case_when(
+  mutate(period2 = case_when(
+    #Immediately prior to SSWD
     year >= 2010 & year < 2013 ~ "Pre-SSWD" ,
     year > 2013 & year <= 2016 ~ "SSWD" ,
     year > 2016 ~ "Post-SSWD")) %>% 
@@ -179,4 +181,20 @@ stars_summary %>%
   group_by(period) %>% 
   summarise(mean = mean(percent_of_max),
             se = sd(percent_of_max)/sqrt(n()))
+
+
+#Linear mixed effects model 
+pisaster_lmer <- lmer(percent_of_max ~ period + 
+             (1 | site_id),
+           data = stars_summary)
+summary(pisaster_lmer)
+
+# Check assumptions with DHARMa package
+pisaster_lmer_res = simulateResiduals(pisaster_lmer)
+plot(pisaster_lmer_res, rank = T)
+testDispersion(pisaster_lmer_res)
+plotResiduals(pisaster_lmer_res, stars_summary$site_id, xlab = "Site", main=NULL)
+
+# Compute estimated marginal means 
+emmeans(pisaster_lmer, specs = "period")
 

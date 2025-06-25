@@ -293,3 +293,29 @@ postelsia_summary_plot_mini
 
 ggsave("output/extra_figures/summary_figure/postelsia_summary.png", postelsia_summary_plot_mini, 
        width = 6, height = 2.5, units = "in", dpi = 600)
+
+
+########################################
+# Part 6: Summary Stats for Results ####
+########################################
+
+#GLMER tweedie
+postelsia_glmer <- glmmTMB(density ~ period2 + 
+                (1 | site_id),
+              family = tweedie, 
+              data = postelsia_annual_summary)
+summary(postelsia_glmer)
+
+# Check assumptions with DHARMa package
+postelsia_glmer_res = simulateResiduals(postelsia_glmer, quantreg=T)
+plot(postelsia_glmer_res, rank = T)
+testDispersion(postelsia_glmer_res)
+plotResiduals(postelsia_glmer_res, postelsia_annual_summary$site_id, xlab = "Site", main=NULL)
+
+# Compute estimated marginal means 
+emmeans(postelsia_glmer, specs = "period2", type = "response")
+
+postelsia_annual_summary %>% 
+  group_by(period2) %>% 
+  summarise(mean = mean(density),
+            se = sd(density)/sqrt(n()))

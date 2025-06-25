@@ -7,11 +7,13 @@ library(emmeans)
 set.seed(99)
 
 
-ggplot(postelsia_annual_summary, aes(x=density))+
+ggplot(temp, aes(x=log_density_change))+
   geom_histogram()
 
 temp <- postelsia_annual_summary %>% 
-        mutate(density = if_else(density == 0, .001, density))
+        mutate(density_changed = density+1,
+               log_density_change = log(density_changed),
+               density_rounded = round(density, digits =0))
 
 temp2 <- stars_summary %>% 
   filter(year>2009)
@@ -22,9 +24,9 @@ temp2 <- stars_summary %>%
 
 #LMER####
 
-f1 <- lmer(density ~ period2 + 
+f1 <- lmer(log_density_change ~ period2 + 
                 (1 | site_id),
-              data = postelsia_annual_summary)
+              data = temp)
 summary(f1)
 
 # Check assumptions with DHARMa package
@@ -35,10 +37,10 @@ plotResiduals(f1_res, postelsia_annual_summary$site_id, xlab = "Site", main=NULL
 
 
 #GLMER Gaussian ####
-f2 <- glmmTMB(density ~ period2 + 
+f2 <- glmmTMB(log_density_change ~ period2 + 
                  (1 | site_id),
                family = gaussian, 
-               data = postelsia_annual_summary)
+               data = temp)
 summary(f2)
 
 # Check assumptions with DHARMa package
@@ -46,6 +48,21 @@ f2_res = simulateResiduals(f2, quantreg=T)
 plot(f2_res, rank = T)
 testDispersion(f2_res)
 plotResiduals(f2_res, postelsia_annual_summary$site_id, xlab = "Site", main=NULL)
+
+#GLMER 
+f3 <- glmmTMB(density_rounded ~ period2 + 
+                (1 | site_id),
+              family = poisson(), 
+              data = temp)
+summary(f3)
+
+# Check assumptions with DHARMa package
+f3_res = simulateResiduals(f3, quantreg=T)
+plot(f3_res, rank = T)
+testDispersion(f3_res)
+plotResiduals(f3_res, postelsia_annual_summary$site_id, xlab = "Site", main=NULL)
+
+
 
 
 #GLMER tweedie
@@ -65,7 +82,7 @@ plotResiduals(f3_res, postelsia_annual_summary$site_id, xlab = "Site", main=NULL
 #GLMER lognormal
 f4 <- glmmTMB(density ~ period2 + 
                 (1 | site_id),
-              family = lognormal, 
+              family = poisson, 
               data = temp)
 summary(f4)
 
@@ -75,6 +92,8 @@ plot(f4_res, rank = T)
 testDispersion(f4_res)
 plotResiduals(f4_res, postelsia_annual_summary$site_id, xlab = "Site", main=NULL)
 
+ggplot(postelsia_annual_summary, aes(x=total))+
+  geom_histogram()
 
 #GLMER gamma
 f5 <- glmmTMB(density ~ period2 + 
@@ -88,7 +107,9 @@ summary(f5)
 
 emmeans(f1, specs = "period2", type = "response")
 emmeans(f2, specs = "period2", type = "response")
-emmeans(f3, specs = "period2", type = "response")
+emmeans(f3, specs = "period2", 
+        #type = "response"
+        )
 emmeans(f4, specs = "period2", type = "response")
 emmeans(f5, specs = "period2", type = "response")
 
@@ -147,6 +168,16 @@ emmeans(g3, specs = "period2", type = "response")
 # Pisaster Linear Modeling ###
 #------------------------------
 
+ggplot(stars_summary, aes(x=pisaster_biomass_g, fill = period))+
+  facet_wrap(facets = "period")+
+  geom_histogram() 
+
+temp <- stars_summary %>% 
+  mutate(log_biomass = log(pisaster_biomass_g),
+    biomass_rounded = round(pisaster_biomass_g, digits = 0),
+    period = factor(period, levels = c("post_SSWD", "pre_SSWD", "during_SSWD")))
+
+
 #LMER####
 
 h1 <- lmer(pisaster_biomass_g ~ period + 
@@ -165,7 +196,7 @@ plotResiduals(h1_res, stars_summary$site_id, xlab = "Site", main=NULL)
 h2 <- glmmTMB(pisaster_biomass_g ~ period + 
                 (1 | site_id),
               family = gaussian, 
-              data = stars_summary)
+              data = temp)
 summary(h2)
 
 # Check assumptions with DHARMa package
@@ -194,7 +225,7 @@ h4 <- glmmTMB(pisaster_biomass_g ~ period +
                 (1 | site_id),
               family = lognormal, 
               data = stars_summary)
-summary(f4)
+summary(h4)
 
 # Check assumptions with DHARMa package
 h4_res = simulateResiduals(h4, quantreg=T)
@@ -203,31 +234,40 @@ testDispersion(h4_res)
 plotResiduals(h4_res, stars_summary$site_id, xlab = "Site", main=NULL)
 
 
-#GLMER gamma
-h5 <- glmmTMB(pisaster_biomass_g ~ period + 
+#GLMER poisson
+h6 <- glmmTMB(biomass_rounded ~ period + 
                 (1 | site_id),
-              family = Gamma(link = "log"), 
-              data = stars_summary)
-summary(h5)
+              family = nbinom1(link = "log"), 
+              data = temp)
+summary(h6) 
+
 
 # Check assumptions with DHARMa package
-h5_res = simulateResiduals(h5, quantreg=T)
-plot(h5_res, rank = T)
-testDispersion(h5_res)
-plotResiduals(h5_res, stars_summary$site_id, xlab = "Site", main=NULL)
+h6_res = simulateResiduals(h6, quantreg=T)
+plot(h6_res, rank = T)
+testDispersion(h6_res)
+plotResiduals(h6_res, stars_summary$site_id, xlab = "Site", main=NULL)
+
 
 
 emmeans(h1, specs = "period", type = "response")
 emmeans(h2, specs = "period", type = "response")
 emmeans(h3, specs = "period", type = "response")
 emmeans(h4, specs = "period", type = "response")
-emmeans(h5, specs = "period", type = "response")
 
+
+stars_summary
 
 
 #################################
 # Percent of max as response ####
 #################################
+
+ggplot(stars_summary, aes(x=percent_of_max, fill = period))+
+  facet_wrap(facets = "period")+
+  geom_histogram() 
+
+set.seed(99)
 
 #LMER####
 i1 <- lmer(percent_of_max ~ period + 
@@ -301,3 +341,9 @@ emmeans(i2, specs = "period", type = "response")
 emmeans(i3, specs = "period", type = "response")
 emmeans(i4, specs = "period", type = "response")
 emmeans(i5, specs = "period", type = "response")
+
+
+stars_summary %>% 
+  group_by(period) %>% 
+  summarise(mean = mean(percent_of_max),
+            se = sd(percent_of_max)/sqrt(n()))
