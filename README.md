@@ -22,7 +22,7 @@ There are 6 R scripts associated with this repository run all console and data p
 
 *Note:* *Due to the conservation status of Postelsia palmaeformis, we removed all site-specific metadata from all publicly-available data and code. Because of this, R scripts to produce the map figure (Figure 2B) are not published in this repository*.
 
-Analyses, results, figures, and tables presented in the manuscript were produced with R version 4.5.0 using the following packages: tidyverse (v2.0.0), heatwaveR (v0.5.4), mgcv (v1.9.1), glmmTMB (v1.1.11), DHARMa (v0.4.7), lmqq (v1.5.8), ggplot2 (v3.5.2), ggthemes (v5.1.0), sf (v1.0.20), maps (v3.4.2.1), gratia (v0.10.0), gt (v1.0.0), and biscale (v1.0.0).
+Analyses, results, figures, and tables presented in the manuscript were produced with R version 4.5.1 using the following packages: biscale (v1.0.0), gratia (v0.10.0), gt (v1.0.0), sf (v1.0-21), ggpubr (v0.6.1), cowplot (v1.2.0), mapdata (v2.3.1), maps (v3.4.3), ggthemes (v5.1.0), emmeans (v.1.11.2), lmerTest (v3.1-3), lme4 (v1.1-37), Matrix (v.1.7-3), heatwaveR (v0.5.4), lmqq (v1.5.8), DHARMa (v0.4.7), glmmTMB (v1.1.11), mgcv (v1.9-3), nlme (v3.1-168), lubridate (v1.9.4), forcats (v1.0.0), stringr (v.1.5.1), dplyr (v1.1.4), purrr (v1.0.4), readr (v2.1.5), tidyr (v1.3.1), tibble (v3.3.0), ggplot2 (v3.5.2), and tidyverse (v2.0.0).
 
 ------------------------------------------------------------------------
 
