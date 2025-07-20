@@ -172,12 +172,6 @@ ggsave("output/extra_figures/summary_figure/stars_summary.png", stars_summary_pl
 
 #Raw summary 
 stars_summary %>% 
-  mutate(period2 = case_when(
-    #Immediately prior to SSWD
-    year >= 2010 & year < 2013 ~ "Pre-SSWD" ,
-    year > 2013 & year <= 2016 ~ "SSWD" ,
-    year > 2016 ~ "Post-SSWD")) %>% 
-  drop_na(period) %>% 
   group_by(period) %>% 
   summarise(mean = mean(percent_of_max),
             se = sd(percent_of_max)/sqrt(n()))

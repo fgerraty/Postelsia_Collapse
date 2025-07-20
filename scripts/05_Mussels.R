@@ -5,6 +5,7 @@
 # Script 05: Mussel Data Analyses ######################################
 #-------------------------------------------------------------------------
 
+set.seed(99)
 #################################################
 # Part 1: Import, Clean, and Summarize Data #####
 #################################################
@@ -182,11 +183,11 @@ ggsave("output/extra_figures/mussel_percent_cover.png",
 # Mussel Percent Cover Analysis  #########
 ##########################################
 
-pc_model <- glmmTMB(percent_cover ~ period + 
-                      (1 | site_id), 
-                    data = mussel_percent_cover,
-                    family=gaussian())
+pc_model <- lmer(percent_cover ~ period +
+                   (1 | site_id),
+                 data = mussel_percent_cover)
 summary(pc_model)
+
 
 #Check residuals for normality
 shapiro.test(resid(pc_model))
@@ -196,5 +197,3 @@ pc_res = simulateResiduals(pc_model)
 plot(pc_res, rank = T)
 testDispersion(pc_res)
 plotResiduals(pc_res, mussel_percent_cover$site_id, xlab = "Site", main=NULL)
-
-

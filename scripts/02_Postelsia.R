@@ -315,6 +315,7 @@ plotResiduals(postelsia_glmer_res, postelsia_annual_summary$site_id, xlab = "Sit
 # Compute estimated marginal means 
 emmeans(postelsia_glmer, specs = "period2", type = "response")
 
+#Check overall means to compare with EMM output
 postelsia_annual_summary %>% 
   group_by(period2) %>% 
   summarise(mean = mean(density),
