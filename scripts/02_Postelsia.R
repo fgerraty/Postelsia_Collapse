@@ -112,7 +112,7 @@ bar_plot <- ggplot(postelsia_summary, aes(x=site_id, y=percent_change,
     values = c("TRUE" = "#1F509A", "FALSE" = "#E38E49"))+
   coord_flip(ylim = c(-100, 95))+
   labs(x = "Site", 
-       y = "Percent change of\nPostelsia density",
+       y = expression(atop("Percent change of", italic("Postelsia") ~ "density")),
        fill = "")+
   theme_few()+
   theme(legend.position = "none",
@@ -121,9 +121,9 @@ bar_plot
 
 ggsave("output/extra_figures/map/bar_plot.png", bar_plot, width = 3, height = 6.4, units = "in", dpi = 600)
 
-#######################################################################
-# Part 4: Postelsia density change vs. sampling effort (Figure SX) ####
-#######################################################################
+###########################################################
+# Part 4: Postelsia density change vs. sampling effort ####
+###########################################################
 
 # Plot percent change of postelsia density against total number of survey years
 density_vs_all_years <- ggplot(postelsia_summary, aes(x=n_years_total, y=percent_change,
@@ -255,14 +255,15 @@ postelsia_summary_plot <- ggplot(postelsia_annual_summary, aes(x=year))+
             color = "olivedrab4", linewidth = 1)+
   geom_ribbon(data = gam_predictions, aes(ymin = lower, ymax = upper),
               fill = "olivedrab4", alpha = 0.4) +
-  labs(y = "P. palmaeformis density (% of maximum)",
+  labs(y = expression(bold(bolditalic("P. palmaeformis") ~ "density (% of maximum)")),
        x = "Year")+
   theme_few()+
   theme(axis.text.x = element_text(angle = 45, vjust = 1.1,hjust = 1),
         panel.border = element_rect(linewidth = 2),
         strip.text = element_text(face = "bold"),
         axis.title.x = element_text(face = "bold"),
-        axis.title.y = element_text(face = "bold")) 
+        axis.title.y = element_text(face = "bold")
+        ) 
 postelsia_summary_plot
 
 ggsave("output/extra_figures/postelsia_summary.png", postelsia_summary_plot, 
