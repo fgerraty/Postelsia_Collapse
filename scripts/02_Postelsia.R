@@ -321,3 +321,36 @@ postelsia_annual_summary %>%
   group_by(period2) %>% 
   summarise(mean = mean(density),
             se = sd(density)/sqrt(n()))
+
+
+###########################################
+# Part 7: Tidal Elevation Overlap Plot ####
+###########################################
+
+
+tidal_elevation_overlap <- read_csv("data/processed/tidal_elevation_overlap.csv")
+
+tidal_elevation_plot <- ggplot(tidal_elevation_overlap, aes(x=tidal_elevation, 
+                                                            fill = species_lump, 
+                                                            color = species_lump))+
+  geom_density(alpha = .6, linewidth = .3, aes(weight = count))+
+  facet_wrap(facets = "site_id", ncol=2, 
+             scales = "free_y", 
+             switch = "y"
+  )+
+  scale_fill_manual(values = c("darkblue","purple3","#4cbb17"))+
+  scale_color_manual(values = c("darkblue","purple3","#4cbb17"))+
+  labs(fill = "Species", color = "Species", y = "", x = "Tidal height (meters from MLLW)")+
+  theme_few()+
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        strip.text.y.left = element_text(angle = 0, hjust = 1, face = "bold"),
+        panel.spacing = unit(0.8, "lines"),
+        panel.border = element_rect(linewidth = 1.5),
+        legend.position = "inside",
+        legend.position.inside = c(.75, .02),
+        axis.title.x = element_text(margin = margin(t = 18), face = "bold"))
+tidal_elevation_plot
+
+ggsave( "output/extra_figures/tidal_height_plot.png", tidal_elevation_plot,
+        height = 7, width = 5, units = "in", dpi = 600)
