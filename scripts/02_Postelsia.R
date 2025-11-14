@@ -112,7 +112,7 @@ bar_plot <- ggplot(postelsia_summary, aes(x=site_id, y=percent_change,
     values = c("TRUE" = "#1F509A", "FALSE" = "#E38E49"))+
   coord_flip(ylim = c(-100, 95))+
   labs(x = "Site", 
-       y = "Percent change of\nPostelsia density",
+       y = expression(atop("Percent change of", italic("Postelsia") ~ "density")),
        fill = "")+
   theme_few()+
   theme(legend.position = "none",
@@ -121,9 +121,9 @@ bar_plot
 
 ggsave("output/extra_figures/map/bar_plot.png", bar_plot, width = 3, height = 6.4, units = "in", dpi = 600)
 
-#######################################################################
-# Part 4: Postelsia density change vs. sampling effort (Figure SX) ####
-#######################################################################
+###########################################################
+# Part 4: Postelsia density change vs. sampling effort ####
+###########################################################
 
 # Plot percent change of postelsia density against total number of survey years
 density_vs_all_years <- ggplot(postelsia_summary, aes(x=n_years_total, y=percent_change,
@@ -255,14 +255,15 @@ postelsia_summary_plot <- ggplot(postelsia_annual_summary, aes(x=year))+
             color = "olivedrab4", linewidth = 1)+
   geom_ribbon(data = gam_predictions, aes(ymin = lower, ymax = upper),
               fill = "olivedrab4", alpha = 0.4) +
-  labs(y = "P. palmaeformis density (% of maximum)",
+  labs(y = expression(bold(bolditalic("P. palmaeformis") ~ "density (% of maximum)")),
        x = "Year")+
   theme_few()+
   theme(axis.text.x = element_text(angle = 45, vjust = 1.1,hjust = 1),
         panel.border = element_rect(linewidth = 2),
         strip.text = element_text(face = "bold"),
         axis.title.x = element_text(face = "bold"),
-        axis.title.y = element_text(face = "bold")) 
+        axis.title.y = element_text(face = "bold")
+        ) 
 postelsia_summary_plot
 
 ggsave("output/extra_figures/postelsia_summary.png", postelsia_summary_plot, 
@@ -320,3 +321,36 @@ postelsia_annual_summary %>%
   group_by(period2) %>% 
   summarise(mean = mean(density),
             se = sd(density)/sqrt(n()))
+
+
+###########################################
+# Part 7: Tidal Elevation Overlap Plot ####
+###########################################
+
+
+tidal_elevation_overlap <- read_csv("data/processed/tidal_elevation_overlap.csv")
+
+tidal_elevation_plot <- ggplot(tidal_elevation_overlap, aes(x=tidal_elevation, 
+                                                            fill = species_lump, 
+                                                            color = species_lump))+
+  geom_density(alpha = .6, linewidth = .3, aes(weight = count))+
+  facet_wrap(facets = "site_id", ncol=2, 
+             scales = "free_y", 
+             switch = "y"
+  )+
+  scale_fill_manual(values = c("darkblue","purple3","#4cbb17"))+
+  scale_color_manual(values = c("darkblue","purple3","#4cbb17"))+
+  labs(fill = "Species", color = "Species", y = "", x = "Tidal height (meters from MLLW)")+
+  theme_few()+
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        strip.text.y.left = element_text(angle = 0, hjust = 1, face = "bold"),
+        panel.spacing = unit(0.8, "lines"),
+        panel.border = element_rect(linewidth = 1.5),
+        legend.position = "inside",
+        legend.position.inside = c(.75, .02),
+        axis.title.x = element_text(margin = margin(t = 18), face = "bold"))
+tidal_elevation_plot
+
+ggsave( "output/extra_figures/tidal_height_plot.png", tidal_elevation_plot,
+        height = 7, width = 5, units = "in", dpi = 600)

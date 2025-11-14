@@ -241,7 +241,7 @@ smooth_coefs(heatwave_gam, "s(site_id)")
 (smooth_estimates(heatwave_gam) %>% 
     filter(.smooth == "s(site_id)") %>% 
     filter(.estimate == median(.estimate)))$site_id
- #NOTE: Not working because there is no median! 
+#NOTE: Not working because there is no median! 
 
 
 #Predict values from GAM for plotting
@@ -321,7 +321,7 @@ example_plot <- ggplot(clim_cat, aes(x = t, y = temp)) +
             fill = NA,
             color = "grey40",
             linetype = "dashed")+
-
+  
   
   scale_colour_manual(name = NULL, values = lineColCat,
                       limits = c("Temperature", "Climatology", "Threshold")) +
@@ -333,7 +333,7 @@ example_plot <- ggplot(clim_cat, aes(x = t, y = temp)) +
   theme(legend.position = "inside",
         legend.position.inside = c(.72, .85),
         panel.border = element_rect(linewidth = 1.2,
-                                       colour = "black"),
+                                    colour = "black"),
         legend.box.background = element_rect(linewidth = 1, color = "black"),
         axis.title.y = element_text(face = "bold"))+
   guides(
@@ -395,7 +395,7 @@ example_plot_2 <- ggplot(clim_cat, aes(x = t, y = temp)) +
         panel.border = element_rect(linewidth = 1.2,
                                     colour = "black"),
         legend.background = element_rect(linewidth = .7,
-                                    colour = "black"),
+                                         colour = "black"),
         axis.title.y = element_text(face = "bold"))
 example_plot_2
 

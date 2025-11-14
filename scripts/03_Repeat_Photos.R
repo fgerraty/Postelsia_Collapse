@@ -121,6 +121,11 @@ mussel_gam_predictions <- data.frame(
 #All sites summary plot #######
 ###############################
 
+species_labels <- c(
+  "Mussel" = "Mussel",
+  "Postelsia" = "italic(Postelsia)"
+)
+
 photo_summary <- ggplot(panoramic_photos_long, 
                         aes(x=year)) +
   # Add semi-transparent red box spanning 2014-2016
@@ -139,10 +144,8 @@ photo_summary <- ggplot(panoramic_photos_long,
   geom_ribbon(data = mussel_gam_predictions, aes(ymin = lower, ymax = upper),
               fill = "darkblue", alpha = 0.4) +
   labs(x = "Year", y= "Percent of Maximum Abundance", fill = "Species", color = "Species")+
-  scale_fill_manual(values = c("darkblue", "olivedrab4"),
-                    labels = c("Mussel", "Postelsia"))+
-  scale_color_manual(values = c("darkblue", "olivedrab4"),
-                     labels = c("Mussel", "Postelsia"))+
+  scale_fill_manual(values = c("darkblue", "olivedrab4"), labels = c("Mussel", "Postelsia"))+ 
+  scale_color_manual(values = c("darkblue", "olivedrab4"), labels = c("Mussel", "Postelsia"))+
   scale_y_continuous(breaks = c(0, 25, 50, 75, 100))+
   theme_few()+
   theme(axis.text.x = element_text(angle = 45, vjust = 1.1,hjust = 1),

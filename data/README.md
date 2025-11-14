@@ -4,7 +4,7 @@
 
 ### "Postelsia Plots" Dataset
 
-The "postelsia plots" dataset ([data/processed/postelsia_plots.csv](https://github.com/fgerraty/Postelsia_Collapse/blob/main/data/processed/postelsia_plots.csv)) contains *Postelsia palmiformis* count data by plot from long-term surveys collected by the [Multi-Agency Rocky Intertidal Network](https://marine.ucsc.edu). The dataset contains the following columns:
+The "postelsia plots" dataset ([data/processed/postelsia_plots.csv](https://github.com/fgerraty/Postelsia_Collapse/blob/main/data/processed/postelsia_plots.csv)) contains *Postelsia palmiformis* count data by plot from long-term surveys collected by the [Multi-Agency Rocky Intertidal Network](https://marine.ucsc.edu) (MARINe). The dataset contains the following columns:
 
 -   **site_id** -unique number code for each site
 
@@ -80,7 +80,7 @@ The "temperature" dataset ([data/processed/temperature.csv](https://github.com/f
 
 ### "Mussels" Dataset
 
-The "mussels" dataset ([data/processed/mussels.csv](https://github.com/fgerraty/Postelsia_Collapse/blob/main/data/processed/mussels.csv)) contains mussel occurrence data by plot from [Multi-Agency Rocky Intertidal Network](#0) Coastal Biodiversity Servey (CBS) grids. Each row in this dataset constitutes a single mussel detection at any layer. The dataset contains the following columns:
+The "mussels" dataset ([data/processed/mussels.csv](https://github.com/fgerraty/Postelsia_Collapse/blob/main/data/processed/mussels.csv)) contains mussel occurrence data by plot from MARINe [Coastal Biodiversity Servey (CBS) grids](#0). Each row in this dataset constitutes a single mussel detection at any layer. The dataset contains the following columns:
 
 -   **site_id** - unique number code for each site
 
@@ -102,7 +102,7 @@ The "mussels" dataset ([data/processed/mussels.csv](https://github.com/fgerraty/
 
 ### "Mussel Percent Cover" Dataset
 
-The "mussel percent cover" dataset ([data/processed/mussels_percent_cover.csv](https://github.com/fgerraty/Postelsia_Collapse/blob/main/data/processed/mussel_percent_cover.csv)) contains mussel percent cover data by survey across the entire [Multi-Agency Rocky Intertidal Network](#0) Coastal Biodiversity Servey (CBS) grid. Each row in this dataset constitutes a single CBS survey. The dataset contains the following columns:
+The "mussel percent cover" dataset ([data/processed/mussels_percent_cover.csv](https://github.com/fgerraty/Postelsia_Collapse/blob/main/data/processed/mussel_percent_cover.csv)) contains mussel percent cover data by survey across the entire [MARINe Coastal Biodiversity Survey (CBS)](https://marine.ucsc.edu/methods/biodiversity-methods.html) grid. Each row in this dataset constitutes a single CBS survey. The dataset contains the following columns:
 
 -   **site_id** - unique number code for each site
 
@@ -113,3 +113,19 @@ The "mussel percent cover" dataset ([data/processed/mussels_percent_cover.csv](h
 -   **count** - number of points in CBS survey grid at which mussels were detected.
 
 -   **percent_cover** - percent cover of mussels across the CBS survey grid (count / number_of_transect_locations \* 100)
+
+### "Tidal Elevation Overlap" Dataset
+
+The "tidal elevation overlap" dataset ([data/processed/tidal_elevation_overlap.csv](https://github.com/fgerraty/Postelsia_Collapse/blob/revisions/data/processed/tidal_elevation_overlap.csv)) contains mussel, Postelsia, and Pisaster occurrence data from [MARINe Coastal Biodiversity Survey (CBS)](https://marine.ucsc.edu/methods/biodiversity-methods.html) grids. For *Mytilus californianus* and *Postelsia palmaeformis*, each row in this dataset constitutes a single detection at any layer along CBS grid transects. For *Pisaster ochraceus*, each row represents one mobile invertebrate quadrat and the value for "count" indicates the number of *Pisaster* within each quadrat. The dataset contains the following columns:
+
+-   **site_id** - unique letter code for each site
+
+-   **year** - year in which CBS survey was conducted (Range: 2001-2023)
+
+-   **species_lump** - Species name.
+
+-   **tidal_elevation** - The calculated height in meters above Mean Low Low Water of the referenced location. These calculations are made by kriging the data in Surfer 8. See more information here: <https://support.goldensoftware.com/hc/en-us/articles/231348728-A-Basic-Understanding-of-Surfer-Gridding-Methods-Part-1#kriging>
+
+<!-- -->
+
+-   **count** - number of individuals detected at this location. This will always be 1 for *Mytilus* and *Postelsia*, but may be more for *Pisaster*.
