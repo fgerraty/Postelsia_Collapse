@@ -1,8 +1,6 @@
 # Marine heatwave and keystone predator loss drive broad-scale decline and hinder recovery of a rocky intertidal kelp
 
-FD Gerraty, K Ammann, MA Douglas, M George, DP Lohse, CM Miner, PT Raimondi. (2025) Marine heatwave and keystone predator loss drive broad-scale decline and hinder recovery of a rocky intertidal kelp. *In Revision.*
-
-[![](https://zenodo.org/badge/DOI/10.5281/zenodo.16241083.svg)](https://doi.org/10.5281/zenodo.16241083)
+FD Gerraty, K Ammann, MA Douglas, M George, DP Lohse, CM Miner, PT Raimondi. (2026) Marine heatwave and keystone predator loss drive broad-scale decline and hinder recovery of a rocky intertidal kelp. *Ecological Applications.*
 
 We examined the direct and indirect effects of the 2014-2016 northeast Pacific marine heatwave (MHW) and the synergistic sea star wasting disease outbreak on the abundance, persistence, and recovery of the sea palm, *Postelsia palmaeformis*. To do so, we leveraged long-term rocky intertidal community monitoring data collected for over two decades at seventeen sites spanning most of the southern portion of the kelp's geographic range. We found that *Postelsia* populations declined during the 2014-2016 MHW, likely due to acute thermal stress. In tandem, we found that the functional loss of ochre stars (*Pisaster ochraceus*) led to mussel bed expansion, indirectly hindering *Postelsia* recoveries. Our results show that these synergistic disturbances acted as a "one-two punch" to drive persistent, broad-scale *Postelsia* declines.
 
